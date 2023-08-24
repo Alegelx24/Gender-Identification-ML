@@ -206,56 +206,6 @@ def heatmap_generator(D, L, filename):
         
         plt.savefig("./images/DatasetAnalysis/heatmaps/heatmap_%s.pdf" % (filename + "_" + titles[k]))
 
-        
-#################################################
-#---------GAUSSIANIZATION-----------------------#
-#################################################
-
-#for each sample of the feature I have to call this function
-def compute_rank(x_one_value, x_all_samples):
-    rank=0
-    for xi in x_all_samples:
-        if xi<x_one_value:
-            rank+=1
-    return (rank +1)/ (x_all_samples.shape[0] +2)
-
-
-def gaussianize_training (DTR):
-    rank_DTR = numpy.zeros(DTR.shape)
-    for i in range(DTR.shape[0]):
-        for j in range(DTR.shape[1]):
-            rank_DTR[i][j] = compute_rank(DTR[i][j], DTR[i])
-    return statist.norm.ppf(rank_DTR)
-
-def gaussianize_evaluation (DTE, DTR):
-    rank_DTE = numpy.zeros(DTE.shape)
-    for i in range(DTE.shape[0]):
-        for j in range(DTE.shape[1]):
-            rank_DTE[i][j] = compute_rank(DTE[i][j], DTR[i])
-    return statist.norm.ppf(rank_DTE)
-
-
-####################################
-#-----------HEATMAP----------------#
-####################################
-
-    
-    
-####################################
-#-------------PCA------------------#
-####################################
-
-def pca(m, D):
-    mu = compute_mean(D)
-    DCentered = D - mu #center the data
-    C=numpy.dot(DCentered,DCentered.transpose())/float(D.shape[1]) #compute emprical covariance matrix C
-    _, U = numpy.linalg.eigh(C) #U contains the eigenvectors corresponding to eigenvalues of C in ascending order
-    #I need to take the first m eigenvectors corresponding to the m largest eigenvalues
-    P = U[:, ::-1][:, 0:m] #I invert the columns of U then I take the firsts m
-    DProjected = numpy.dot(P.T, D)
-    return DProjected, P
-
-
     
     
     
