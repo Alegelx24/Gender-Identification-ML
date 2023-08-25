@@ -210,6 +210,18 @@ def heatmap_generator(D, L, filename):
     
     
     
+
+def pca(m, D):
+    mu = compute_mean(D)
+    DCentered = D - mu #center the data
+    C=numpy.dot(DCentered,DCentered.transpose())/float(D.shape[1]) #compute emprical covariance matrix C
+    _, U = numpy.linalg.eigh(C) #U contains the eigenvectors corresponding to eigenvalues of C in ascending order
+    #I need to take the first m eigenvectors corresponding to the m largest eigenvalues
+    P = U[:, ::-1][:, 0:m] #I invert the columns of U then I take the firsts m
+    DProjected = numpy.dot(P.T, D)
+    return DProjected, P
+
+
     
     
     
