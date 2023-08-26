@@ -2,6 +2,7 @@
 import dataset_util as util
 import validate as validate
 import gaussian_classifier as gaussian
+import logistic_regression as logreg
 
 k=5 #K-fold
 
@@ -18,11 +19,15 @@ def main():
     #plot(D_gaussianized, L, gaussianize) #plot gaussianized features   
 
     #TRAINING
-    print("VALIDATION WITHOUT GAUSSIANIZATION")
+    #print("VALIDATION WITHOUT GAUSSIANIZATION")
 
-    train_evaluate_gaussian_models(D, L)
-    train_evaluate_gaussian_models_zscore(D_norm, L)
-
+    #train_evaluate_gaussian_models(D, L)
+    #train_evaluate_gaussian_models_zscore(D_norm, L)
+   
+    #logreg.plot_minDCF_wrt_lamda(D, L, gaussianize)
+    #logreg.quadratic_plot_minDCF_wrt_lambda(D, L, gaussianize)
+    train_evaluate_logreg(D, L)
+    
     
 
 
@@ -97,6 +102,55 @@ def train_evaluate_gaussian_models_zscore(D,L):
         D=D_copy #restore original dataset
 
        
+
+        
+def train_evaluate_logreg(D,L):
+    D_copy = D
+    Options={
+    'lambdaa' : None,
+    'piT': None,
+    }  
+    m = 12
+    while m>=8:
+        
+        if m < 12:
+            D = util.pca(m, D)[0]
+            print ("############################################")
+            print ("### Linear Logistic regression with m = %d ##" %m)
+            print ("###########################################")
+        else:
+            print ("################################################")
+            print ("#### Linear Logistic regression with NO PCA ####")
+            print ("###############################################")
+            
+        for piT in [0.1, 0.5, 0.9]:
+            Options['lambdaa']=1e-06
+            Options['piT']=piT
+            for pi in [0.1, 0.5, 0.9]:
+                min_dcf_kfold = validate.kfold(D, L, k, pi, logreg.compute_score, Options)[0]
+                print(" Logistic reggression -piT = %f - pi = %f  minDCF = %f" %(Options['piT'], pi,min_dcf_kfold))
+             
+        if m < 8:
+            D = util.pca(m, D)[0]
+            print ("################################################")
+            print ("### Quadratic Logistic regression with m = %d ##" %m)
+            print ("###############################################")
+        else:
+            print ("###################################################")
+            print ("#### Quadratic Logistic regression with NO PCA ####")
+            print ("##################################################")
+            
+        for piT in [0.1, 0.5, 0.9]:
+            Options['lambdaa']=1e-06
+            Options['piT']=piT
+            for pi in [0.1, 0.5, 0.9]:
+                min_dcf_kfold = validate.kfold(D, L, k, pi, logreg.compute_score_quadratic, Options)[0]
+                print(" Quadratic Log Reg -piT = %f - pi = %f  minDCF = %f" %(Options['piT'], pi,min_dcf_kfold))  
+        
+        m = m-1
+        D=D_copy #restore original dataset
+    
+
 
 
     
