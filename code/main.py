@@ -4,6 +4,7 @@ import validate as validate
 import gaussian_classifier as gaussian
 import logistic_regression as logreg
 import support_vector_machine as svm
+import gaussian_mixture_model as gmm
 
 k=5 #K-fold
 
@@ -35,6 +36,9 @@ def main():
     svm.plot_quadratic_minDCF_wrt_C(D, L, gaussianize)
     svm.plot_RBF_minDCF_wrt_C(D, L, gaussianize)
     #train_evaluate_svm(D,L)
+
+    #train_evaluate_gmm(D_gaussianized, L)
+    
     
 
 
@@ -107,8 +111,7 @@ def train_evaluate_gaussian_models_zscore(D,L):
         m=m-1
         D=D_copy #restore original dataset
 
-       
-
+    
         
 def train_evaluate_logreg(D,L):
     D_copy = D
@@ -192,7 +195,7 @@ def train_evaluate_svm(D,L):
                 min_dcf_kfold = validate.kfold(D, L, k, pi, svm.compute_score_linear, Options)[0]
                 print("Linear SVM without rebalancing -C=%f - pi = %f - minDCF = %f" %(Options['C'], pi,min_dcf_kfold)) 
           
-        if m < 8:
+        if m < 12:
             D = util.pca(m, D)[0]
             print ("##########################################")
             print ("########## SVM QUADRATIC with m = %d ######" %m)
@@ -215,7 +218,7 @@ def train_evaluate_svm(D,L):
             min_dcf_kfold = validate.kfold(D, L, k, pi, svm.compute_score_quadratic, Options)[0]
             print("Quadratic SVM without rebalancing -C=%f - pi = %f - minDCF = %f" %(Options['C'], pi,min_dcf_kfold))
            
-        if m < 8:
+        if m < 12:
             D = util.pca(m, D)[0]
             print ("##########################################")
             print ("######### SVM RBF with m = %d #############" %m)
@@ -241,8 +244,70 @@ def train_evaluate_svm(D,L):
               
         m = m-1
         D=D_copy #restore original dataset
-        
 
+
+        
+def train_evaluate_gmm(D,L):
+    D_copy = D
+    Options={ 
+        'Type':None,
+        'iterations':None #gmm components = 2^iterations
+        }  
+    m = 12
+    while m>=9:
+        if m < 12:
+            D = util.pca(m, D)[0]
+            print ("##########################################")
+            print ("############# GMM with m = %d ##############" %m)
+            print ("##########################################")
+        else:
+            print ("##########################################")
+            print ("########## GMM LINEAR with NO PCA ########")
+            print ("##########################################")
+            
+            Options['Type']='full'
+            Options['iterations']= 4
+            _, scores_full, labels = validate.kfold(D, L, k, 0.5, gmm.compute_score, Options) #pi=0.5 actually not used to compute scores
+           
+            Options['Type']='diag'
+            Options['iterations']= 5
+            _, scores_diag, labels = validate.kfold(D, L, k, 0.5, gmm.compute_score, Options) #pi=0.5 actually not used to compute scores
+            
+            Options['Type']='full-tied'
+            Options['iterations']= 6
+            _, scores_full_tied, labels = validate.kfold(D, L, k, 0.5, gmm.compute_score, Options) #pi=0.5 actually not used to compute scores
+            
+            Options['Type']='diag-tied'
+            Options['iterations']= 6
+            _, scores_diag_tied, labels = validate.kfold(D, L, k, 0.5, gmm.compute_score, Options) #pi=0.5 actually not used to compute scores
+
+        for pi in [0.1, 0.5, 0.9]:
+
+            Options['Type']='full'
+            Options['iterations']= 4
+            min_dcf_kfold = validate.compute_min_DCF(scores_full, labels, pi, 1, 1)
+            print(" gmm %s -components=%d - pi = %f --> minDCF = %f" %(Options['Type'], 2**Options['iterations'], pi,min_dcf_kfold))
+            
+            Options['Type']='diag'
+            Options['iterations']= 5
+            min_dcf_kfold = validate.compute_min_DCF(scores_diag, labels, pi, 1, 1)
+            print(" gmm %s -components=%d - pi = %f --> minDCF = %f" %(Options['Type'], 2**Options['iterations'], pi,min_dcf_kfold))
+            
+            Options['Type']='full-tied'
+            Options['iterations']= 6
+            min_dcf_kfold = validate.compute_min_DCF(scores_full_tied, labels, pi, 1, 1)
+            print(" gmm %s -components=%d - pi = %f --> minDCF = %f" %(Options['Type'], 2**Options['iterations'], pi,min_dcf_kfold))
+            
+            Options['Type']='diag-tied'
+            Options['iterations']= 6
+            min_dcf_kfold = validate.compute_min_DCF(scores_diag_tied, labels, pi, 1, 1)
+            print(" gmm %s -components=%d - pi = %f --> minDCF = %f" %(Options['Type'], 2**Options['iterations'], pi,min_dcf_kfold))
+                
+        m = m-1
+        D=D_copy #restore original dataset
+            
+   
+        
 
 
     
