@@ -33,11 +33,11 @@ def main():
     
     
     svm.plot_linear_minDCF_wrt_C(D, L, gaussianize)
-    svm.plot_quadratic_minDCF_wrt_C(D, L, gaussianize)
-    svm.plot_RBF_minDCF_wrt_C(D, L, gaussianize)
+    #svm.plot_quadratic_minDCF_wrt_C(D, L, gaussianize)
+    #svm.plot_RBF_minDCF_wrt_C(D, L, gaussianize)
     #train_evaluate_svm(D,L)
 
-    #train_evaluate_gmm(D_gaussianized, L)
+    #train_evaluate_gmm(D, L)
     
     
 
