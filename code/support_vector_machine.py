@@ -95,7 +95,7 @@ def plot_linear_minDCF_wrt_C(DTR,LTR,gaussianize, DEV=None, LEV=None, evaluation
     print('Linear SVM: computation for plotting min_cdf wrt C started...')
     min_DCFs=[]
     for pi in [0.1, 0.5, 0.9]:
-        C_array = numpy.logspace(-6,6, num = 31)
+        C_array = numpy.logspace(-6,6, num = 30)
         for C in C_array:
                 Options= {'C': C,
                           'piT':0.5,
@@ -103,11 +103,11 @@ def plot_linear_minDCF_wrt_C(DTR,LTR,gaussianize, DEV=None, LEV=None, evaluation
                 min_dcf_kfold = validate.kfold(DTR, LTR, K_fold, pi, compute_score_linear, Options )[0] 
                 min_DCFs.append(min_dcf_kfold)
                 print ("Linear SVM min_dcf for pi=%f -C=%f - results min_dcf=%f "%(pi,C,min_dcf_kfold))
-    min_DCFs_p0 = min_DCFs[0:10] #min_DCF results with prior = 0.1
-    min_DCFs_p1 = min_DCFs[10:20] #min_DCF results with prior = 0.5
-    min_DCFs_p2 = min_DCFs[20:30] #min_DCF results with prior = 0.9
+    min_DCFs_p0 = min_DCFs[0:30] #min_DCF results with prior = 0.1
+    min_DCFs_p1 = min_DCFs[30:60] #min_DCF results with prior = 0.5
+    min_DCFs_p2 = min_DCFs[60:90] #min_DCF results with prior = 0.9
     
-    C_array = numpy.logspace(-6,6, num = 31)
+    C_array = numpy.logspace(-6,6, num = 30)
    
     if evaluation==False: #plot only result for validation set
         plt.figure()
@@ -127,7 +127,7 @@ def plot_linear_minDCF_wrt_C(DTR,LTR,gaussianize, DEV=None, LEV=None, evaluation
     else: #compare plot of validation and evaluation set
         min_DCFs=[]
         for pi in [0.1, 0.5, 0.9]:
-            C_array = numpy.logspace(-5,5, num = 10)
+            C_array = numpy.logspace(-6,6, num = 30)
             for C in C_array:
                     Options= {'C': C,
                               'piT':0.5,
@@ -136,11 +136,11 @@ def plot_linear_minDCF_wrt_C(DTR,LTR,gaussianize, DEV=None, LEV=None, evaluation
                     min_DCF_ev = validate.compute_min_DCF(scores_linear_svm, LEV, pi, 1, 1)
                     min_DCFs.append(min_DCF_ev)
                     print ("computed min_dcf for pi=%f -C=%f - results min_dcf=%f "%(pi,C,min_DCF_ev))
-        min_DCFs_p0_ev = min_DCFs[0:10] #min_DCF results with prior = 0.1
-        min_DCFs_p1_ev = min_DCFs[10:20] #min_DCF results with prior = 0.5
-        min_DCFs_p2_ev = min_DCFs[20:30] #min_DCF results with prior = 0.9
+        min_DCFs_p0_ev = min_DCFs[0:30] #min_DCF results with prior = 0.1
+        min_DCFs_p1_ev = min_DCFs[30:60] #min_DCF results with prior = 0.5
+        min_DCFs_p2_ev = min_DCFs[60:90] #min_DCF results with prior = 0.9
         
-        C_array = numpy.logspace(-5,5, num = 10)
+        C_array = numpy.logspace(-6,6, num = 30)
         
         
         plt.figure()
@@ -243,7 +243,7 @@ def plot_RBF_minDCF_wrt_C(DTR,LTR,gaussianize, DEV=None, LEV=None, evaluation=Fa
     pi=0.5
     gamma_array= [0.0001, 0.001, 0.01, 0.1]    
     for gamma in gamma_array:
-        C_array = numpy.logspace(-4,3, num = 8)
+        C_array = numpy.logspace(-4,3, num = 20)
         for C in C_array:
                 Options= {'C': C,
                           'piT':0.5,
