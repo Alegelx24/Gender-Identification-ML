@@ -22,24 +22,37 @@ def main():
     #plot(D_gaussianized, L, gaussianize) #plot gaussianized features   
 
     #TRAINING
-    print("VALIDATION WITHOUT GAUSSIANIZATION")
+    print("VALIDATION WITHOUT ZSCORE NORMALIZATION")
 
     #train_evaluate_gaussian_models(D, L)
-    #train_evaluate_gaussian_models_zscore(D_norm, L)
    
-    #logreg.plot_minDCF_wrt_lamda(D_norm, L, gaussianize=False)
-    #logreg.quadratic_plot_minDCF_wrt_lambda(D_norm, L, gaussianize=False)
+    #logreg.plot_minDCF_wrt_lamda(D, L, gaussianize=False)
+    #logreg.quadratic_plot_minDCF_wrt_lambda(D, L, gaussianize=False)
     #train_evaluate_logreg(D, L)
     
     
     #svm.plot_linear_minDCF_wrt_C(D, L, gaussianize)
     #svm.plot_quadratic_minDCF_wrt_C(D, L, gaussianize)
-    svm.plot_RBF_minDCF_wrt_C(D, L, gaussianize)
+    #svm.plot_RBF_minDCF_wrt_C(D, L, gaussianize)
     #train_evaluate_svm(D,L)
 
+    #gmm.plot_minDCF_wrt_components(D, D_norm, L)
     #train_evaluate_gmm(D, L)
     
     
+    print("VALIDATION WITH ZSCORE NORMALIZATION")
+    #train_evaluate_gaussian_models_zscore(D_norm, L)
+   
+    #logreg.plot_minDCF_wrt_lamda(D_norm, L, gaussianize=False)
+    #logreg.quadratic_plot_minDCF_wrt_lambda(D_norm, L, gaussianize=False)
+    #train_evaluate_logreg(D_Norm, L)
+
+    
+    #svm.plot_linear_minDCF_wrt_C(D_norm, L, gaussianize)
+    #svm.plot_quadratic_minDCF_wrt_C(D_norm, L, gaussianize)
+    svm.plot_RBF_minDCF_wrt_C(D_norm, L, gaussianize)
+    #train_evaluate_svm(D_norm,L)
+
 
 
 
@@ -182,7 +195,7 @@ def train_evaluate_svm(D,L):
             print ("######## SVM LINEAR with NO PCA ##########")
             print ("##########################################")
             
-        Options['C']=0.1
+        Options['C']=1
         for piT in [0.1, 0.5, 0.9]:
             for pi in [0.1, 0.5, 0.9]:
                 Options['piT']=piT
@@ -229,9 +242,9 @@ def train_evaluate_svm(D,L):
             print ("##########################################")
         for piT in [0.5]:
             for pi in [0.9]:
-                Options['C']=10###############################################################################################
+                Options['C']=10
                 Options['piT']=piT
-                Options['gamma']=0.01
+                Options['gamma']=0.1
                 Options['rebalance']=True
                 min_dcf_kfold = validate.kfold(D, L, k, pi, svm.compute_score_RBF, Options)[0]
                 print("RBF SVM -piT = %f -gamma =%f -C=%f - pi = %f -> minDCF = %f" %(piT, Options['gamma'], Options['C'], pi,min_dcf_kfold))      

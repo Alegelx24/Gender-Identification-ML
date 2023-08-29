@@ -121,7 +121,7 @@ def plot_linear_minDCF_wrt_C(DTR,LTR,gaussianize, DEV=None, LEV=None, evaluation
         if gaussianize:
             plt.savefig("./images/min_DCF_C_linearSVM_gaussianized.pdf")
         else:
-            plt.savefig("./images/min_DCF_C_linearSVM_raw.pdf")
+            plt.savefig("./images/min_DCF_C_linearSVM_raw.pdf")############################################################################
         plt.show()
     
     else: #compare plot of validation and evaluation set
@@ -274,7 +274,7 @@ def plot_RBF_minDCF_wrt_C(DTR,LTR,gaussianize, DEV=None, LEV=None, evaluation=Fa
         if gaussianize:
             plt.savefig("./images/min_DCF_C_RBF_SVM_gaussianized.pdf")
         else:
-            plt.savefig("./images/min_DCF_C_RBF_SVM_raw.pdf")
+            plt.savefig("./images/min_DCF_C_RBF_SVM_zscore.pdf")#################################################################################
         plt.show()
         
     else:#compare validation and evaluation
@@ -404,7 +404,7 @@ def plot_quadratic_minDCF_wrt_C(DTR,LTR,gaussianize, DEV=None, LEV=None, evaluat
     min_DCFs_p1 = min_DCFs[10:20] #min_DCF results with prior = 0.5
     min_DCFs_p2 = min_DCFs[20:30] #min_DCF results with prior = 0.9
     
-    C_array = numpy.logspace(-5,5, num = 8)
+    C_array = numpy.logspace(-6,6, num = 10)
    
     
     if evaluation == False:
@@ -424,7 +424,7 @@ def plot_quadratic_minDCF_wrt_C(DTR,LTR,gaussianize, DEV=None, LEV=None, evaluat
         if gaussianize:
             plt.savefig("./images/min_DCF_C_QuadraticSVM_gaussianized.pdf")
         else:
-            plt.savefig("./images/min_DCF_C_QuadraticSVM_raw.pdf")
+            plt.savefig("./images/min_DCF_C_QuadraticSVM_raw.pdf")##########################################################################
         plt.show()
         
         
