@@ -28,13 +28,13 @@ def main():
     #train_evaluate_gaussian_models_zscore(D_norm, L)
    
     #logreg.plot_minDCF_wrt_lamda(D_norm, L, gaussianize=False)
-    #logreg.quadratic_plot_minDCF_wrt_lambda(D, L, gaussianize=False)
+    #logreg.quadratic_plot_minDCF_wrt_lambda(D_norm, L, gaussianize=False)
     #train_evaluate_logreg(D, L)
     
     
-    svm.plot_linear_minDCF_wrt_C(D, L, gaussianize)
+    #svm.plot_linear_minDCF_wrt_C(D, L, gaussianize)
     #svm.plot_quadratic_minDCF_wrt_C(D, L, gaussianize)
-    #svm.plot_RBF_minDCF_wrt_C(D, L, gaussianize)
+    svm.plot_RBF_minDCF_wrt_C(D, L, gaussianize)
     #train_evaluate_svm(D,L)
 
     #train_evaluate_gmm(D, L)
@@ -182,7 +182,7 @@ def train_evaluate_svm(D,L):
             print ("######## SVM LINEAR with NO PCA ##########")
             print ("##########################################")
             
-        Options['C']=1
+        Options['C']=0.1
         for piT in [0.1, 0.5, 0.9]:
             for pi in [0.1, 0.5, 0.9]:
                 Options['piT']=piT
@@ -206,14 +206,14 @@ def train_evaluate_svm(D,L):
             print ("##########################################")
         for piT in [0.5]:
             for pi in [0.5, 0.9]:
-                Options['C']=0.1
+                Options['C']=1e-03
                 Options['piT']=piT
                 Options['rebalance']=True
                 min_dcf_kfold = validate.kfold(D, L, k, pi, svm.compute_score_quadratic, Options)[0]
                 print("Quadratric SVM -piT = %f -C=%f - pi = %f - minDCF = %f" %(piT,Options['C'], pi,min_dcf_kfold))
                 
         Options['rebalance']=False
-        Options['C']=0.1
+        Options['C']=0.1##################################################################################################
         for pi in [0.1]:
             min_dcf_kfold = validate.kfold(D, L, k, pi, svm.compute_score_quadratic, Options)[0]
             print("Quadratic SVM without rebalancing -C=%f - pi = %f - minDCF = %f" %(Options['C'], pi,min_dcf_kfold))
@@ -229,7 +229,7 @@ def train_evaluate_svm(D,L):
             print ("##########################################")
         for piT in [0.5]:
             for pi in [0.9]:
-                Options['C']=10
+                Options['C']=10###############################################################################################
                 Options['piT']=piT
                 Options['gamma']=0.01
                 Options['rebalance']=True
