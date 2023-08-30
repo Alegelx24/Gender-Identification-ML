@@ -5,6 +5,7 @@ import gaussian_classifier as gaussian
 import logistic_regression as logreg
 import support_vector_machine as svm
 import gaussian_mixture_model as gmm
+import score_calibration as calibration
 
 k=5 #K-fold
 
@@ -36,7 +37,7 @@ def main():
     #svm.plot_RBF_minDCF_wrt_C(D, L, gaussianize)
     #train_evaluate_svm(D,L)
 
-    #gmm.plot_minDCF_wrt_components(D, D_norm, L)
+    gmm.plot_minDCF_wrt_components(D, D_norm, L)
     #train_evaluate_gmm(D, L)
     
     
@@ -50,7 +51,7 @@ def main():
     
     #svm.plot_linear_minDCF_wrt_C(D_norm, L, gaussianize)
     #svm.plot_quadratic_minDCF_wrt_C(D_norm, L, gaussianize)
-    svm.plot_RBF_minDCF_wrt_C(D_norm, L, gaussianize)
+    #svm.plot_RBF_minDCF_wrt_C(D_norm, L, gaussianize)
     #train_evaluate_svm(D_norm,L)
 
 
@@ -320,7 +321,13 @@ def train_evaluate_gmm(D,L):
         D=D_copy #restore original dataset
             
    
-        
+          
+def perform_calibration(D,L):
+    calibration.min_vs_act(D, L)
+    calibration.optimal_threshold(D,L)
+    calibration.validate_score_trasformation(D, L)
+    calibration.min_vs_act_after_calibration(D, L)
+  
 
 
     
