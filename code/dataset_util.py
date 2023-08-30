@@ -127,9 +127,9 @@ def plot_histograms(D, L, gaussianize):
         plt.legend()
         plt.tight_layout() # TBR: Use with non-default font size to keep axis label inside the figure
         if gaussianize:
-            plt.savefig('./images/DatasetAnalysis/hist/histogram_afterGaussianization_%d.pdf' % dIdx)
+            plt.savefig('./images/DatasetAnalysis/hist/histogram_afterGaussianization_%d.png' % dIdx)
         else:
-            plt.savefig('./images/DatasetAnalysis/hist/histogram_beforeGaussianization_%d.pdf' % dIdx)
+            plt.savefig('./images/DatasetAnalysis/hist/histogram_beforeGaussianization_%d.png' % dIdx)
 
     #plt.show()
     
@@ -166,7 +166,7 @@ def plot_scatters(D, L, gaussianize):
         
             plt.legend()
             plt.tight_layout() # Use with non-default font size to keep axis label inside the figure
-            plt.savefig('./images/DatasetAnalysis/scatter/scatter_%d_%d.pdf' % (dIdx1, dIdx2))
+            plt.savefig('./images/DatasetAnalysis/scatter/scatter_%d_%d.png' % (dIdx1, dIdx2))
         #plt.show()
         
 def heatmap_generator(D, L, filename):
@@ -204,7 +204,7 @@ def heatmap_generator(D, L, filename):
         plt.title(titles[k] + " - " + filename + " features")
         fig.tight_layout()
         
-        plt.savefig("./images/DatasetAnalysis/heatmaps/heatmap_%s.pdf" % (filename + "_" + titles[k]))
+        plt.savefig("./images/DatasetAnalysis/heatmaps/heatmap_%s.png" % (filename + "_" + titles[k]))
 
     
     

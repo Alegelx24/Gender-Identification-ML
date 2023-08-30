@@ -37,7 +37,7 @@ def main():
     #svm.plot_RBF_minDCF_wrt_C(D, L, gaussianize)
     #train_evaluate_svm(D,L)
 
-    gmm.plot_minDCF_wrt_components(D, D_norm, L)
+    #gmm.plot_minDCF_wrt_components(D, D_norm, L)
     #train_evaluate_gmm(D, L)
     
     
@@ -53,6 +53,9 @@ def main():
     #svm.plot_quadratic_minDCF_wrt_C(D_norm, L, gaussianize)
     #svm.plot_RBF_minDCF_wrt_C(D_norm, L, gaussianize)
     #train_evaluate_svm(D_norm,L)
+
+    
+    validate.two_bests_roc(D, L) #model selection
 
 
 
