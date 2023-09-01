@@ -221,8 +221,8 @@ def train_evaluate_svm(D,L):
             print ("##########################################")
             print ("########SVM QUADRATIC with NO PCA ########")
             print ("##########################################")
-        for piT in [0.5]:
-            for pi in [0.5, 0.9]:
+        for piT in [0.1, 0.5, 0.9]:
+            for pi in [0.1, 0.5, 0.9]:
                 Options['C']=1e-03
                 Options['piT']=piT
                 Options['rebalance']=True
@@ -244,8 +244,8 @@ def train_evaluate_svm(D,L):
             print ("##########################################")
             print ("##########SVM RBF with NO PCA ############")
             print ("##########################################")
-        for piT in [0.5]:
-            for pi in [0.9]:
+        for piT in [0.1, 0.5, 0.9]:
+            for pi in [0.1, 0.5, 0.9]:
                 Options['C']=10
                 Options['piT']=piT
                 Options['gamma']=0.1
