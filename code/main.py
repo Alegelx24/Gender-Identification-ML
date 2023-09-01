@@ -6,7 +6,7 @@ import logistic_regression as logreg
 import support_vector_machine as svm
 import gaussian_mixture_model as gmm
 import score_calibration as calibration
-
+import model_fusion as fusion
 k=5 #K-fold
 
   
@@ -41,7 +41,7 @@ def main():
     #train_evaluate_gmm(D, L)
     
     
-    print("VALIDATION WITH ZSCORE NORMALIZATION")
+   # print("VALIDATION WITH ZSCORE NORMALIZATION")
     #train_evaluate_gaussian_models_zscore(D_norm, L)
    
     #logreg.plot_minDCF_wrt_lamda(D_norm, L, gaussianize=False)
@@ -55,9 +55,9 @@ def main():
     #train_evaluate_svm(D_norm,L)
 
     
-    validate.two_bests_roc(D, L) #model selection
-
-
+    #validate.two_bests_roc(D, L) #model selection
+    #perform_calibration(D_norm,L)
+    validate_fusion(D_norm,L)
 
 
 def plot(DTR, LTR, gaussianize):
@@ -150,7 +150,7 @@ def train_evaluate_logreg(D,L):
             print ("###############################################")
             
         for piT in [0.1, 0.5, 0.9]:
-            Options['lambdaa']=1e-06
+            Options['lambdaa']=1e-06    
             Options['piT']=piT
             for pi in [0.1, 0.5, 0.9]:
                 min_dcf_kfold = validate.kfold(D, L, k, pi, logreg.compute_score, Options)[0]
@@ -331,6 +331,11 @@ def perform_calibration(D,L):
     calibration.validate_score_trasformation(D, L)
     calibration.min_vs_act_after_calibration(D, L)
   
+
+def validate_fusion(D,L):
+    fusion.validate_fused_scores(D,L)
+    #fusion.ROC_with_fusion(D,L)
+    fusion.bayes_plot_with_fusion(D,L)
 
 
     
