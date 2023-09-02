@@ -56,8 +56,8 @@ def main():
 
     
     #validate.two_bests_roc(D, L) #model selection
-    #perform_calibration(D_norm,L)
-    validate_fusion(D_norm,L)
+    perform_calibration(D_norm,L)
+    #validate_fusion(D_norm,L)
 
 
 def plot(DTR, LTR, gaussianize):
@@ -333,7 +333,7 @@ def perform_calibration(D,L):
   
 
 def validate_fusion(D,L):
-    fusion.validate_fused_scores(D,L)
+    #fusion.validate_fused_scores(D,L)
     #fusion.ROC_with_fusion(D,L)
     fusion.bayes_plot_with_fusion(D,L)
 

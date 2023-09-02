@@ -116,13 +116,10 @@ def optimal_threshold (DTR,LTR, DEV=None, LEV=None, evaluation=False):
             print('RBF SVM: prior pi= % f - act_dcf computed on evaluation scores set for theoretical threshold = %f' %(pi,theoretical_cost_ev))
             print('RBF SVM: prior pi= % f - min_dcf computed on evaluation scores = %f' %(pi,min_DCF_ev))
     '''
-       ############################
-       # ################################################ nOOOOONNNNNNNNNNN VAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA QUIIIIIIIIIII     
-
+       
 def score_trasformation(scores_TR, LTR, scores_TE,pi):
     scores_TR= mrow(scores_TR)
     scores_TE= mrow(scores_TE)
-    #alfa, beta_prime = gmm.train_gmm(scores_TR, LTR, 2, "full-tied") 
     alfa, beta_prime = log_reg.train_log_reg(scores_TR, LTR, 1e-06, pi) 
     new_scores= numpy.dot(alfa.T,scores_TE)+beta_prime - numpy.log(pi/(1-pi))
     return new_scores
