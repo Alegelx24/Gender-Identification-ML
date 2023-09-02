@@ -7,30 +7,28 @@ import support_vector_machine as svm
 import numpy
 import score_calibration as calibration
 import matplotlib.pyplot as plt
-import model_fusion as fusion 
+import model_fusion as fusion
 
 def evaluation():
 
-    DTR,LTR = util.load_training_set('../Data/Train.txt')
-    DEV, LEV = util.load_evaluation_set('../Data/Test.txt')
-    DTR,DEV= util.scale_ZNormalization(DTR, DEV, normalize_ev = True) #Normalize evaluation samples using mean and covariance from training set
-    DTR_gaussianized= util.gaussianize_training(DTR)
-    DEV_gaussianized = util.gaussianize_evaluation(DEV, DTR) #Gaussianzize evaluation samples comparing them with training set
+    DTR,LTR = util.load_training_set('./Data/Train.txt')
+    DEV, LEV = util.load_evaluation_set('./Data/Test.txt')
+    DTR_norm,DEV_norm= util.scale_ZNormalization(DTR, DEV, normalize_ev = True) #Normalize evaluation samples using mean and covariance from training set
     
     print('-----------EVALUATION WITH RAW FEATURES STARTED...-----------------')
     gaussianize=False
-    evaluation_MVG(DTR, LTR, DEV, LEV)
+    #evaluation_MVG(DTR, LTR, DEV, LEV)
     evaluation_log_reg(DTR, LTR, DEV, LEV, gaussianize)
-    evaluation_SVM(DTR, LTR, DEV, LEV, gaussianize)
-    evaluation_gmm(DTR, DTR_gaussianized, LTR, DEV, DEV_gaussianized, LEV, gaussianize)
+    #evaluation_SVM(DTR, LTR, DEV, LEV, gaussianize)
+    #evaluation_gmm(DTR, DTR_norm, LTR, DEV, DEV_norm, LEV, gaussianize)
 
+    '''
     
-    print('-----------EVALUATION ON GAUSSIANIZED FEATURES STARTED...-----------------')
-    gaussianize=True
-    evaluation_MVG(DTR_gaussianized, LTR, DEV_gaussianized, LEV)
-    evaluation_log_reg(DTR_gaussianized, LTR, DEV_gaussianized, LEV, gaussianize)
-    evaluation_SVM(DTR_gaussianized, LTR, DEV_gaussianized, LEV,gaussianize )
-    evaluation_gmm(DTR, DTR_gaussianized, LTR, DEV, DEV_gaussianized, LEV, gaussianize)
+    print('-----------EVALUATION ON ZSCORE FEATURES STARTED...-----------------')
+    evaluation_MVG(DTR_norm, LTR, DEV_norm, LEV)
+    evaluation_log_reg(DTR_norm, LTR, DEV_norm, LEV, gaussianize)
+    evaluation_SVM(DTR_norm, LTR, DEV_norm, LEV,gaussianize )
+    evaluation_gmm(DTR, DTR_norm, LTR, DEV, DEV_norm, LEV, gaussianize)
 
     
     calibration.min_vs_act(DTR,LTR, DEV=DEV, LEV=LEV, evaluation=True)
@@ -39,15 +37,16 @@ def evaluation():
     calibration.min_vs_act_after_calibration(DTR, LTR, DEV=DEV, LEV=LEV, evaluation=True)
     
     evaluation_fusion(DTR, LTR, DEV, LEV)
+    '''
 
 
 def evaluation_MVG(DTR, LTR, DEV, LEV):
     DTR_copy = DTR
     DEV_copy = DEV
     Options={ }  
-    m = 8
-    while m>=5:
-        if m < 8:
+    m = 12
+    while m>=9:
+        if m <12:
             DTR, P = util.pca(m, DTR)
             DEV = numpy.dot(P.T, DEV)
             print ("##########################################")
@@ -84,12 +83,12 @@ def evaluation_MVG(DTR, LTR, DEV, LEV):
 
 def evaluation_log_reg(DTR, LTR, DEV, LEV, gaussianize):
     log_reg.plot_minDCF_wrt_lamda(DTR,LTR, gaussianize, DEV=DEV, LEV=LEV, evaluation=True)
-    log_reg.quadratic_plot_minDCF_wrt_lamda(DTR, LTR, gaussianize, DEV=DEV, LEV=LEV, evaluation=True)
+    log_reg.quadratic_plot_minDCF_wrt_lambda(DTR, LTR, gaussianize, DEV=DEV, LEV=LEV, evaluation=True)
     DTR_copy = DTR
     DEV_copy = DEV
-    m = 8
-    while m>=5:
-        if m < 8:
+    m = 12
+    while m>=9:
+        if m < 12:
             DTR, P = util.pca(m, DTR)
             DEV = numpy.dot(P.T, DEV)
             print ("##########################################")
@@ -101,18 +100,20 @@ def evaluation_log_reg(DTR, LTR, DEV, LEV, gaussianize):
             print ("##########################################")
             
         Options={
-        'lambdaa' : 1e-6,
+        'lambdaa' : 1e-5,
         'piT': None,
         }              
         for piT in [0.1, 0.5, 0.9]:
             Options['piT']=piT
+            Options['lambdaa']=1e-5
             scores_linear_log_reg = log_reg.compute_score(DEV, DTR, LTR, Options)
+            Options['lambdaa']=100
             scores_quadratic_log_reg = log_reg.compute_score_quadratic(DEV, DTR, LTR, Options)
             for pi in [0.1, 0.5, 0.9]:
                 min_DCF = validate.compute_min_DCF(scores_linear_log_reg, LEV, pi, 1, 1)
                 print("linear log reg -lamda = 10^-6 -piT=%f - pi = %f --> min_DCF= %f" %(piT, pi,min_DCF))
                 min_DCF = validate.compute_min_DCF(scores_quadratic_log_reg, LEV, pi, 1, 1)
-                print("Quadratic log reg -lamda = 10^-6 -piT=%f - pi = %f --> min_DCF= %f" %(piT, pi,min_DCF))
+                print("Quadratic log reg -lamda = 10^2 -piT=%f - pi = %f --> min_DCF= %f" %(piT, pi,min_DCF))
         
         m=m-1
         DEV = DEV_copy

@@ -7,6 +7,7 @@ import support_vector_machine as svm
 import gaussian_mixture_model as gmm
 import score_calibration as calibration
 import model_fusion as fusion
+import evaluation as eval
 k=5 #K-fold
 
   
@@ -38,7 +39,7 @@ def main():
     #train_evaluate_svm(D,L)
 
     #gmm.plot_minDCF_wrt_components(D, D_norm, L)
-    #train_evaluate_gmm(D, L)
+    #train_evaluate_gmm(D_norm, L)
     
     
    # print("VALIDATION WITH ZSCORE NORMALIZATION")
@@ -56,9 +57,9 @@ def main():
 
     
     #validate.two_bests_roc(D, L) #model selection
-    perform_calibration(D_norm,L)
+    #perform_calibration(D_norm,L)
     #validate_fusion(D_norm,L)
-
+    eval.evaluation()
 
 def plot(DTR, LTR, gaussianize):
     #save histograms of the distribution of all the features in '../Images' folder. E
@@ -283,40 +284,40 @@ def train_evaluate_gmm(D,L):
             print ("##########################################")
             
             Options['Type']='full'
-            Options['iterations']= 4
+            Options['iterations']= 2
             _, scores_full, labels = validate.kfold(D, L, k, 0.5, gmm.compute_score, Options) #pi=0.5 actually not used to compute scores
            
             Options['Type']='diag'
-            Options['iterations']= 5
+            Options['iterations']= 2
             _, scores_diag, labels = validate.kfold(D, L, k, 0.5, gmm.compute_score, Options) #pi=0.5 actually not used to compute scores
             
             Options['Type']='full-tied'
-            Options['iterations']= 6
+            Options['iterations']= 2
             _, scores_full_tied, labels = validate.kfold(D, L, k, 0.5, gmm.compute_score, Options) #pi=0.5 actually not used to compute scores
             
             Options['Type']='diag-tied'
-            Options['iterations']= 6
+            Options['iterations']= 4
             _, scores_diag_tied, labels = validate.kfold(D, L, k, 0.5, gmm.compute_score, Options) #pi=0.5 actually not used to compute scores
 
         for pi in [0.1, 0.5, 0.9]:
 
             Options['Type']='full'
-            Options['iterations']= 4
+            Options['iterations']= 2
             min_dcf_kfold = validate.compute_min_DCF(scores_full, labels, pi, 1, 1)
             print(" gmm %s -components=%d - pi = %f --> minDCF = %f" %(Options['Type'], 2**Options['iterations'], pi,min_dcf_kfold))
             
             Options['Type']='diag'
-            Options['iterations']= 5
+            Options['iterations']= 2
             min_dcf_kfold = validate.compute_min_DCF(scores_diag, labels, pi, 1, 1)
             print(" gmm %s -components=%d - pi = %f --> minDCF = %f" %(Options['Type'], 2**Options['iterations'], pi,min_dcf_kfold))
             
             Options['Type']='full-tied'
-            Options['iterations']= 6
+            Options['iterations']= 2
             min_dcf_kfold = validate.compute_min_DCF(scores_full_tied, labels, pi, 1, 1)
             print(" gmm %s -components=%d - pi = %f --> minDCF = %f" %(Options['Type'], 2**Options['iterations'], pi,min_dcf_kfold))
             
             Options['Type']='diag-tied'
-            Options['iterations']= 6
+            Options['iterations']= 4
             min_dcf_kfold = validate.compute_min_DCF(scores_diag_tied, labels, pi, 1, 1)
             print(" gmm %s -components=%d - pi = %f --> minDCF = %f" %(Options['Type'], 2**Options['iterations'], pi,min_dcf_kfold))
                 

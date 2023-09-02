@@ -108,11 +108,11 @@ def plot_minDCF_wrt_lamda(DTR,LTR, gaussianize, DEV=None, LEV=None, evaluation=F
         plt.ylabel("min_DCF")
         plt.legend()
         if gaussianize:
-            plt.savefig("./images/min_DCF_lambda_log_reg_ev_val_gaussianized.pdf")
+            plt.savefig("./images/eval/min_DCF_lambda_log_reg_ev_val_gaussianized.pdf")
             plt.show()
 
         else:
-            plt.savefig("./images/min_DCF_lambda_log_reg_ev_val_raw.pdf")
+            plt.savefig("./images/eval/min_DCF_lambda_log_reg_ev_val_raw.pdf")
             plt.show()
 
     return min_DCFs
@@ -208,9 +208,9 @@ def quadratic_plot_minDCF_wrt_lambda(DTR,LTR, gaussianize, DEV=None, LEV=None, e
         plt.ylabel("min_DCF")
         plt.legend()
         if gaussianize:
-            plt.savefig("./images/min_DCF_lamda_quadratic_log_reg_ev_val_gaussianized.pdf")
+            plt.savefig("./images/eval/min_DCF_lamda_quadratic_log_reg_ev_val_gaussianized.pdf")
         else:
-            plt.savefig("./images/min_DCF_lamda_quadratic_log_reg_ev_val_raw.pdf")
+            plt.savefig("./images/eval/min_DCF_lamda_quadratic_log_reg_ev_val_raw.pdf")
         plt.show()
     
     return min_DCFs
