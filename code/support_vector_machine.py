@@ -121,7 +121,7 @@ def plot_linear_minDCF_wrt_C(DTR,LTR,gaussianize, DEV=None, LEV=None, evaluation
         if gaussianize:
             plt.savefig("./images/min_DCF_C_linearSVM_gaussianized.pdf")
         else:
-            plt.savefig("./images/min_DCF_C_linearSVM_raw.pdf")############################################################################
+            plt.savefig("./images/min_DCF_C_linearSVM_raw.pdf")
         plt.show()
     
     else: #compare plot of validation and evaluation set
@@ -154,11 +154,11 @@ def plot_linear_minDCF_wrt_C(DTR,LTR,gaussianize, DEV=None, LEV=None, evaluation
         plt.xlabel("C")
         plt.ylabel("min_DCF")
         #plt.legend()
-        plt.show()
         if gaussianize:
             plt.savefig("./images/min_DCF_C_linearSVM_evaluation_gaussianized.pdf")
         else:
             plt.savefig("./images/min_DCF_C_linearSVM_evaluation_raw.pdf")
+        plt.show()
         
     #return min_DCFs
 
@@ -307,7 +307,7 @@ def plot_RBF_minDCF_wrt_C(DTR,LTR,gaussianize, DEV=None, LEV=None, evaluation=Fa
         plt.plot(C_array, min_DCFs_g1_ev, 'g', label='γ=0.001-eval')
         plt.plot(C_array, min_DCFs_g2_ev, 'r', label='γ=0.01-eval')
         plt.plot(C_array, min_DCFs_g3_ev, 'y', label='γ=0.1-eval')
-        # plt.legend()
+        plt.legend() #control if it has to be removed
         plt.tight_layout() 
         plt.semilogx()
         plt.xlabel("C")
