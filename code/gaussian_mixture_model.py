@@ -317,8 +317,8 @@ def plot_minDCF_wrt_components(DTR, DTR_zscore,LTR, DEV=None, DEV_zscore=None, L
                 plt.legend()
                 plt.xlabel("GMM components")
                 plt.ylabel("min_DCF")
-                plt.show()
                 plt.savefig("./images/%s_gmm_minDCF_wrt_evaluation_components.pdf" %Type)
+                #plt.show()
 
     return min_DCFs_raw, min_DCFs_zscore
     

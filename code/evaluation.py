@@ -18,17 +18,18 @@ def evaluation():
     print('-----------EVALUATION WITH RAW FEATURES STARTED...-----------------')
     gaussianize=False
     #evaluation_MVG(DTR, LTR, DEV, LEV)
-    evaluation_log_reg(DTR, LTR, DEV, LEV, gaussianize)
-    #evaluation_SVM(DTR, LTR, DEV, LEV, gaussianize)
-    #evaluation_gmm(DTR, DTR_norm, LTR, DEV, DEV_norm, LEV, gaussianize)
+    #evaluation_log_reg(DTR, LTR, DEV, LEV, gaussianize)
+    evaluation_SVM(DTR, LTR, DEV, LEV, gaussianize)
+    #evaluation_gmm(DTR, DTR_norm, LTR, DEV, DEV_norm, LEV, False) #last field is normalization
 
-    '''
     
     print('-----------EVALUATION ON ZSCORE FEATURES STARTED...-----------------')
-    evaluation_MVG(DTR_norm, LTR, DEV_norm, LEV)
-    evaluation_log_reg(DTR_norm, LTR, DEV_norm, LEV, gaussianize)
-    evaluation_SVM(DTR_norm, LTR, DEV_norm, LEV,gaussianize )
-    evaluation_gmm(DTR, DTR_norm, LTR, DEV, DEV_norm, LEV, gaussianize)
+    #evaluation_MVG(DTR_norm, LTR, DEV_norm, LEV)
+    #evaluation_log_reg(DTR_norm, LTR, DEV_norm, LEV, gaussianize)
+    #evaluation_SVM(DTR_norm, LTR, DEV_norm, LEV,gaussianize )
+    #evaluation_gmm(DTR, DTR_norm, LTR, DEV, DEV_norm, LEV, True)
+    '''
+    
 
     
     calibration.min_vs_act(DTR,LTR, DEV=DEV, LEV=LEV, evaluation=True)
@@ -132,9 +133,9 @@ def evaluation_SVM(DTR, LTR, DEV, LEV, gaussianize):
         }  
     DTR_copy = DTR
     DEV_copy = DEV
-    m = 8
-    while m>=5:
-        if m < 8:
+    m = 12
+    while m>=9:
+        if m < 12:
             DTR, P = util.pca(m, DTR)
             DEV = numpy.dot(P.T, DEV)
             print ("##########################################")
@@ -146,7 +147,7 @@ def evaluation_SVM(DTR, LTR, DEV, LEV, gaussianize):
             print ("##########################################")
             
         for piT in [0.1, 0.5, 0.9]:
-            Options['C']=1
+            Options['C']=0.1
             Options['piT']=piT
             Options['rebalance']=True
             scores_linear_svm = svm.compute_score_linear(DEV, DTR, LTR, Options)
@@ -161,7 +162,7 @@ def evaluation_SVM(DTR, LTR, DEV, LEV, gaussianize):
             min_DCF = validate.compute_min_DCF(scores_linear_svm, LEV, pi, 1, 1)
             print("linear SVM -C =1 -No rebalancing - pi = %f --> min_DCF= %f" %(pi,min_DCF))
             
-        if m < 8:
+        if m < 12:
             DTR, P = util.pca(m, DTR)
             DEV = numpy.dot(P.T, DEV)
             print ("##########################################")
@@ -173,7 +174,7 @@ def evaluation_SVM(DTR, LTR, DEV, LEV, gaussianize):
             print ("##########################################")
             
         for piT in [0.1, 0.5, 0.9]:
-            Options['C']=0.1
+            Options['C']=1e-3
             Options['piT']=piT
             Options['rebalance']=True
             scores_quadratic_svm = svm.compute_score_quadratic(DEV, DTR, LTR, Options)
@@ -181,14 +182,14 @@ def evaluation_SVM(DTR, LTR, DEV, LEV, gaussianize):
                 min_DCF = validate.compute_min_DCF(scores_quadratic_svm, LEV, pi, 1, 1)
                 print("linear SVM -C =1 -piT=%f - pi = %f --> min_DCF= %f" %(piT, pi,min_DCF))
         
-        Options['C']=0.1
+        Options['C']=1e-3
         Options['rebalance']=False
         scores_quadratic_svm = svm.compute_score_quadratic(DEV, DTR, LTR, Options)
         for pi in [0.1, 0.5, 0.9]:
             min_DCF = validate.compute_min_DCF(scores_quadratic_svm, LEV, pi, 1, 1)
             print("linear SVM -C =1 -No rebalancing - pi = %f --> min_DCF= %f" %(pi,min_DCF))
             
-        if m < 8:
+        if m < 12:
             DTR, P = util.pca(m, DTR)
             DEV = numpy.dot(P.T, DEV)
             print ("##########################################")
@@ -200,16 +201,16 @@ def evaluation_SVM(DTR, LTR, DEV, LEV, gaussianize):
             print ("##########################################")
             
         for piT in [0.1, 0.5, 0.9]:
-            Options['C']=10
+            Options['C']=100
             Options['piT']=piT
-            Options['gamma']=0.01
+            Options['gamma']=0.001
             Options['rebalance']=True
             scores_rbf_svm = svm.compute_score_RBF(DEV, DTR, LTR, Options)
             for pi in [0.1, 0.5, 0.9]:
                 min_DCF = validate.compute_min_DCF(scores_rbf_svm, LEV, pi, 1, 1)
                 print("linear SVM -C =1 -piT=%f - pi = %f --> min_DCF= %f" %(piT, pi,min_DCF))
         
-        Options['C']=10
+        Options['C']=100
         Options['rebalance']=False
         scores_rbf_svm = svm.compute_score_RBF (DEV, DTR, LTR, Options)
         for pi in [0.1, 0.5, 0.9]:
@@ -221,20 +222,20 @@ def evaluation_SVM(DTR, LTR, DEV, LEV, gaussianize):
         DTR = DTR_copy
 
 
-def evaluation_gmm(DTR, DTR_gaussianized, LTR, DEV, DEV_gaussianized, LEV, gaussianize):
-    gmm.plot_minDCF_wrt_components(DTR, DTR_gaussianized, LTR, DEV=DEV, DEV_gaussianized=DEV_gaussianized, LEV=LEV, evaluation=True  )
+def evaluation_gmm(DTR, DTR_norm, LTR, DEV, DEV_norm, LEV, gaussianize):
+    #gmm.plot_minDCF_wrt_components(DTR, DTR_norm, LTR, DEV=DEV, DEV_zscore=DEV_norm, LEV=LEV, evaluation=True  )
     DTR_copy = DTR
     DEV_copy = DEV
     Options={ 
         'Type':None,
         'iterations':None #components will be 2^iterations
         }  
-    m = 8
+    m = 12
     if gaussianize:
-        DTR = DTR_gaussianized
-        DEV = DEV_gaussianized
-    while m>=5:
-        if m < 8:
+        DTR = DTR_norm
+        DEV = DEV_norm
+    while m>=9:
+        if m < 12:
             DTR, P = util.pca(m, DTR)
             DEV = numpy.dot(P.T, DEV)
             print ("##########################################")
@@ -247,30 +248,30 @@ def evaluation_gmm(DTR, DTR_gaussianized, LTR, DEV, DEV_gaussianized, LEV, gauss
             
         #Train models on all the training data and compute scores for the evaluation dataset
         Options['Type']='full'
-        Options['iterations']= 4
+        Options['iterations']= 2
         scores_full = gmm.compute_score(DEV,DTR,LTR,Options) 
         Options['Type']='diag'
-        Options['iterations']= 5
+        Options['iterations']= 2
         scores_diag = gmm.compute_score(DEV,DTR,LTR,Options)  
         Options['Type']='full-tied'
-        Options['iterations']= 6
+        Options['iterations']= 2
         scores_full_tied = gmm.compute_score(DEV,DTR,LTR,Options)  
         Options['Type']='diag-tied'
-        Options['iterations']= 6
+        Options['iterations']= 4
         scores_tied_diag = gmm.compute_score(DEV,DTR,LTR,Options) 
         for pi in [0.1, 0.5, 0.9]:
             #compute min DCF on evaluation set
             min_DCF = validate.compute_min_DCF(scores_full, LEV, pi, 1, 1)
-            print(" gmm full -components=16 - pi = %f --> minDCF = %f" %( pi,min_DCF))
+            print(" gmm full -components=4 - pi = %f --> minDCF = %f" %( pi,min_DCF))
 
             min_DCF = validate.compute_min_DCF(scores_diag, LEV, pi, 1, 1)
-            print(" gmm diag -components=32 - pi = %f --> minDCF = %f" %( pi,min_DCF))
+            print(" gmm diag -components=4 - pi = %f --> minDCF = %f" %( pi,min_DCF))
             
             min_DCF = validate.compute_min_DCF(scores_full_tied, LEV, pi, 1, 1)
-            print(" gmm full-tied -components=64 - pi = %f --> minDCF = %f" %( pi,min_DCF))
+            print(" gmm full-tied -components=4 - pi = %f --> minDCF = %f" %( pi,min_DCF))
             
             min_DCF = validate.compute_min_DCF(scores_tied_diag, LEV, pi, 1, 1)
-            print(" gmm diag-tied -components=64 - pi = %f --> minDCF = %f" %( pi,min_DCF))        
+            print(" gmm diag-tied -components=16 - pi = %f --> minDCF = %f" %( pi,min_DCF))        
     
         m=m-1
         DEV = DEV_copy

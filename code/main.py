@@ -42,7 +42,7 @@ def main():
     #train_evaluate_gmm(D_norm, L)
     
     
-   # print("VALIDATION WITH ZSCORE NORMALIZATION")
+    #print("VALIDATION WITH ZSCORE NORMALIZATION")
     #train_evaluate_gaussian_models_zscore(D_norm, L)
    
     #logreg.plot_minDCF_wrt_lamda(D_norm, L, gaussianize=False)
