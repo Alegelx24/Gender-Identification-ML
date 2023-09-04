@@ -188,7 +188,7 @@ def min_vs_act_after_calibration(DTR,LTR, DEV=None, LEV=None, evaluation=False):
     plt.xlabel("application")
     plt.ylabel("cost")
     plt.tight_layout() # Use with non-default font size to keep axis label inside the figure
-    plt.savefig("./images/ScoreCalibration/actVSmin_after_calibration.pdf")
+    plt.savefig("./images/ScoreCalibration/actVSmin_after_calibration_evaluation.pdf")
     plt.show()
     print('########## Bayes Error Plot after calibration END #################')
 

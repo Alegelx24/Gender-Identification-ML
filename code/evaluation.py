@@ -19,7 +19,7 @@ def evaluation():
     gaussianize=False
     #evaluation_MVG(DTR, LTR, DEV, LEV)
     #evaluation_log_reg(DTR, LTR, DEV, LEV, gaussianize)
-    evaluation_SVM(DTR, LTR, DEV, LEV, gaussianize)
+    #evaluation_SVM(DTR, LTR, DEV, LEV, gaussianize)
     #evaluation_gmm(DTR, DTR_norm, LTR, DEV, DEV_norm, LEV, False) #last field is normalization
 
     
@@ -28,17 +28,19 @@ def evaluation():
     #evaluation_log_reg(DTR_norm, LTR, DEV_norm, LEV, gaussianize)
     #evaluation_SVM(DTR_norm, LTR, DEV_norm, LEV,gaussianize )
     #evaluation_gmm(DTR, DTR_norm, LTR, DEV, DEV_norm, LEV, True)
-    '''
     
 
+    print('-----------EVALUATION WITH zscore FEATURES and CALIBRATION STARTED...-----------------')
     
-    calibration.min_vs_act(DTR,LTR, DEV=DEV, LEV=LEV, evaluation=True)
-    calibration.optimal_threshold(DTR, LTR, DEV=DEV, LEV=LEV, evaluation=True)
-    calibration.validate_score_trasformation(DTR,LTR, DEV=DEV, LEV=LEV, evaluation=True)
-    calibration.min_vs_act_after_calibration(DTR, LTR, DEV=DEV, LEV=LEV, evaluation=True)
+    #calibration.min_vs_act(DTR_norm,LTR, DEV=DEV_norm, LEV=LEV, evaluation=True)
+    #calibration.optimal_threshold(DTR_norm, LTR, DEV=DEV_norm, LEV=LEV, evaluation=True)
+    #calibration.validate_score_trasformation(DTR_norm,LTR, DEV=DEV_norm, LEV=LEV, evaluation=True)
+    #calibration.min_vs_act_after_calibration(DTR_norm, LTR, DEV=DEV_norm, LEV=LEV, evaluation=True)
+    print('-----------EVALUATION WITH zscore FEATURES and FUSION STARTED...-----------------')
+
     
-    evaluation_fusion(DTR, LTR, DEV, LEV)
-    '''
+    evaluation_fusion(DTR_norm, LTR, DEV_norm, LEV)
+    
 
 
 def evaluation_MVG(DTR, LTR, DEV, LEV):
@@ -122,9 +124,9 @@ def evaluation_log_reg(DTR, LTR, DEV, LEV, gaussianize):
         
         
 def evaluation_SVM(DTR, LTR, DEV, LEV, gaussianize):
-    svm.plot_linear_minDCF_wrt_C(DTR,LTR,gaussianize, DEV=DEV, LEV=LEV, evaluation=True)
-    svm.plot_quadratic_minDCF_wrt_C(DTR,LTR,gaussianize, DEV=DEV, LEV=LEV, evaluation=True)
-    svm.plot_RBF_minDCF_wrt_C(DTR,LTR,gaussianize, DEV=DEV, LEV=LEV, evaluation=True)
+    #svm.plot_linear_minDCF_wrt_C(DTR,LTR,gaussianize, DEV=DEV, LEV=LEV, evaluation=True)
+    #svm.plot_quadratic_minDCF_wrt_C(DTR,LTR,gaussianize, DEV=DEV, LEV=LEV, evaluation=True)
+    #svm.plot_RBF_minDCF_wrt_C(DTR,LTR,gaussianize, DEV=DEV, LEV=LEV, evaluation=True)
     Options={
         'C' : None,
         'piT': None,
@@ -147,7 +149,7 @@ def evaluation_SVM(DTR, LTR, DEV, LEV, gaussianize):
             print ("##########################################")
             
         for piT in [0.1, 0.5, 0.9]:
-            Options['C']=0.1
+            Options['C']=1
             Options['piT']=piT
             Options['rebalance']=True
             scores_linear_svm = svm.compute_score_linear(DEV, DTR, LTR, Options)
@@ -201,16 +203,16 @@ def evaluation_SVM(DTR, LTR, DEV, LEV, gaussianize):
             print ("##########################################")
             
         for piT in [0.1, 0.5, 0.9]:
-            Options['C']=100
+            Options['C']=10
             Options['piT']=piT
-            Options['gamma']=0.001
+            Options['gamma']=0.1
             Options['rebalance']=True
             scores_rbf_svm = svm.compute_score_RBF(DEV, DTR, LTR, Options)
             for pi in [0.1, 0.5, 0.9]:
                 min_DCF = validate.compute_min_DCF(scores_rbf_svm, LEV, pi, 1, 1)
                 print("linear SVM -C =1 -piT=%f - pi = %f --> min_DCF= %f" %(piT, pi,min_DCF))
         
-        Options['C']=100
+        Options['C']=10
         Options['rebalance']=False
         scores_rbf_svm = svm.compute_score_RBF (DEV, DTR, LTR, Options)
         for pi in [0.1, 0.5, 0.9]:
@@ -223,7 +225,7 @@ def evaluation_SVM(DTR, LTR, DEV, LEV, gaussianize):
 
 
 def evaluation_gmm(DTR, DTR_norm, LTR, DEV, DEV_norm, LEV, gaussianize):
-    #gmm.plot_minDCF_wrt_components(DTR, DTR_norm, LTR, DEV=DEV, DEV_zscore=DEV_norm, LEV=LEV, evaluation=True  )
+    gmm.plot_minDCF_wrt_components(DTR, DTR_norm, LTR, DEV=DEV, DEV_zscore=DEV_norm, LEV=LEV, evaluation=True  )
     DTR_copy = DTR
     DEV_copy = DEV
     Options={ 
@@ -279,18 +281,20 @@ def evaluation_gmm(DTR, DTR_norm, LTR, DEV, DEV_norm, LEV, gaussianize):
 
 
 def evaluation_fusion(DTR, LTR, DEV, LEV):
+   #gmm  
     Options={
-    'lambdaa' : 1e-06,
-    'piT': 0.1,
-    }   
-    scores1 = log_reg.compute_score_quadratic(DEV, DTR, LTR, Options)
+        'Type':'full-tied',
+        'iterations': 2}   
+  
+    scores1 = gmm.compute_score(DEV, DTR, LTR, Options)
     scores1 = util.mrow(scores1)
- 
+    
+    #svm
     Options={
         'C' : 10,
-        'piT': 0.5,
-        'gamma':0.01,
-        'rebalance':True
+        'piT': 0.9,
+        'gamma':0.1,
+        'rebalance':None
         }  
     scores2 = svm.compute_score_RBF(DEV, DTR, LTR, Options)
     scores2 = util.mrow(scores2)
@@ -309,24 +313,22 @@ def evaluation_fusion(DTR, LTR, DEV, LEV):
     
 def bayes_plot_with_fusion_evaluation(DTR, LTR, DEV, LEV):
     pi_array = numpy.linspace(-4, 4, 20)
-
-    #Model 1
+#gmm  
     Options={
-    'lambdaa' : 1e-06,
-    'piT': 0.1,
-    }     
-    _ , scores1, labels1 = validate.kfold(DTR, LTR, 5, 0.5, log_reg.compute_score_quadratic , Options)
+        'Type':'full-tied',
+        'iterations': 2}   
+  
+    _ , scores1, labels1 = validate.kfold(DTR, LTR, 5, 0.5, gmm.compute_score , Options)
     scores_TR1, LTR1, scores_TE1, LTE1 = calibration.split_scores(scores1, labels1) #split and shuffle scores
-    scores1_ev = log_reg.compute_score_quadratic(DEV, DTR, LTR, Options)
+    scores1_ev = gmm.compute_score(DEV, DTR, LTR, Options)
     calibrated_scores1 = calibration.score_trasformation(scores_TR1, LTR1, scores1_ev, 0.5)
     y_min1, y_act1= validate.bayes_error(pi_array, calibrated_scores1, LEV)
     
-    #Model 2
     Options={
         'C' : 10,
-        'piT': 0.5,
-        'gamma':0.01,
-        'rebalance':True
+        'piT': 0.9,
+        'gamma':0.1,
+        'rebalance':None
         }  
     _ , scores2, labels2 = validate.kfold(DTR, LTR, 5, 1, svm.compute_score_RBF, Options) #pi(set to random value 1) actually not used to compute scores
     scores_TR2, LTR2, scores_TE2, LTE2 = calibration.split_scores(scores2, labels2) #split and shuffle scores
@@ -353,8 +355,8 @@ def bayes_plot_with_fusion_evaluation(DTR, LTR, DEV, LEV):
     plt.xlabel("application")
     plt.ylabel("cost")
     plt.tight_layout() # Use with non-default font size to keep axis label inside the figure
+    plt.savefig("./images/actVSmin_fusion_evaluation.pdf")
     plt.show()
-    plt.savefig("../Images/actVSmin_fusion_evaluation.pdf")
     
    
     
