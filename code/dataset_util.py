@@ -129,7 +129,7 @@ def plot_histograms(D, L, gaussianize):
         if gaussianize:
             plt.savefig('./images/DatasetAnalysis/hist/histogram_afterGaussianization_%d.png' % dIdx)
         else:
-            plt.savefig('./images/DatasetAnalysis/hist/histogram_beforeGaussianization_%d.png' % dIdx)
+            plt.savefig('./images/DatasetAnalysis/hist/histogram_beforeGaussianization_zscore_%d.png' % dIdx)
 
     #plt.show()
     

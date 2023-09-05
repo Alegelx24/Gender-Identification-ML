@@ -26,7 +26,7 @@ def evaluation():
     print('-----------EVALUATION ON ZSCORE FEATURES STARTED...-----------------')
     #evaluation_MVG(DTR_norm, LTR, DEV_norm, LEV)
     #evaluation_log_reg(DTR_norm, LTR, DEV_norm, LEV, gaussianize)
-    #evaluation_SVM(DTR_norm, LTR, DEV_norm, LEV,gaussianize )
+    evaluation_SVM(DTR_norm, LTR, DEV_norm, LEV,gaussianize )
     #evaluation_gmm(DTR, DTR_norm, LTR, DEV, DEV_norm, LEV, True)
     
 
@@ -39,7 +39,7 @@ def evaluation():
     print('-----------EVALUATION WITH zscore FEATURES and FUSION STARTED...-----------------')
 
     
-    evaluation_fusion(DTR_norm, LTR, DEV_norm, LEV)
+    #evaluation_fusion(DTR_norm, LTR, DEV_norm, LEV)
     
 
 
@@ -125,8 +125,8 @@ def evaluation_log_reg(DTR, LTR, DEV, LEV, gaussianize):
         
 def evaluation_SVM(DTR, LTR, DEV, LEV, gaussianize):
     #svm.plot_linear_minDCF_wrt_C(DTR,LTR,gaussianize, DEV=DEV, LEV=LEV, evaluation=True)
-    #svm.plot_quadratic_minDCF_wrt_C(DTR,LTR,gaussianize, DEV=DEV, LEV=LEV, evaluation=True)
-    #svm.plot_RBF_minDCF_wrt_C(DTR,LTR,gaussianize, DEV=DEV, LEV=LEV, evaluation=True)
+    svm.plot_quadratic_minDCF_wrt_C(DTR,LTR,gaussianize, DEV=DEV, LEV=LEV, evaluation=True)
+    svm.plot_RBF_minDCF_wrt_C(DTR,LTR,gaussianize, DEV=DEV, LEV=LEV, evaluation=True)
     Options={
         'C' : None,
         'piT': None,
