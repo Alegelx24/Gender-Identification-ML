@@ -94,7 +94,16 @@ def scale_ZNormalization(DTR, DEV = None, normalize_ev=False):
     if normalize_ev:
         DEV=(DEV-mu)/sigma #normalize evaluation_set with mean and std of training set
     return scaled_DTR, DEV
-    
+
+
+def center_dataset(DTR, DEV = None, normalize_ev=False): 
+    mu=compute_mean(DTR)
+    centered_DTR = (DTR-mu) 
+    print('Z-Normalization done!')
+     #normalize evaluation_set with mean and std of training set
+    return centered_DTR, DEV
+
+
 def plot_histograms(D, L, gaussianize):
 
     D0 = D[:, L==0]

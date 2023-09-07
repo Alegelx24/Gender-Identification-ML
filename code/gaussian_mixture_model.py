@@ -272,12 +272,12 @@ def plot_minDCF_wrt_components(DTR, DTR_zscore,LTR, DEV=None, DEV_zscore=None, L
         if evaluation==False:
             iterations_array = numpy.arange (len(iterations_array))
             plt.figure()
-            plt.bar(iterations_array - 0.2, min_DCFs_raw, 0.4, label = 'raw')
-            plt.bar(iterations_array + 0.2, min_DCFs_zscore, 0.4, label = 'zscore')
+            plt.bar(iterations_array - 0.2, min_DCFs_raw, 0.4, label = 'raw', color= "green" )
+            plt.bar(iterations_array + 0.2, min_DCFs_zscore, 0.4, label = 'zscore', color="red")
             X_label = ['1','2','4','8','16','32','64']
             plt.xticks(iterations_array, X_label)
             plt.legend()
-            plt.xlabel("GMM components")
+            plt.xlabel("GMM %s components" %Type)
             plt.ylabel("min_DCF")
             plt.savefig("./images/%s_gmm_minDCF_wrt_components.pdf" %Type)
             plt.show()

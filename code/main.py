@@ -13,24 +13,25 @@ k=5 #K-fold
   
 def main():
     D,L = util.load_training_set('./data/Train.txt')
+    D_centered=util.center_dataset(D)[0]
     D_norm= util.scale_ZNormalization(D)[0]
     #D_gaussianized= util.gaussianize_training(D)
     
     
     gaussianize= False 
 
-    #plot(D, L, gaussianize) #plot raw features before gaussianization
+    #plot(D_centered, L, gaussianize) #plot raw features before gaussianization
     #gaussianize= True
     #plot(D_gaussianized, L, gaussianize) #plot gaussianized features   
 
     #TRAINING
     print("VALIDATION WITHOUT ZSCORE NORMALIZATION")
 
-    #train_evaluate_gaussian_models(D, L)
+    #train_evaluate_gaussian_models(D_centered, L)
    
     #logreg.plot_minDCF_wrt_lamda(D, L, gaussianize=False)
     #logreg.quadratic_plot_minDCF_wrt_lambda(D, L, gaussianize=False)
-    #train_evaluate_logreg(D, L)
+    #train_evaluate_logreg(D_norm, L)
     
     
     #svm.plot_linear_minDCF_wrt_C(D, L, gaussianize)
@@ -38,7 +39,7 @@ def main():
     #svm.plot_RBF_minDCF_wrt_C(D, L, gaussianize)
     #train_evaluate_svm(D,L)
 
-    #gmm.plot_minDCF_wrt_components(D, D_norm, L)
+    gmm.plot_minDCF_wrt_components(D, D_norm, L)
     #train_evaluate_gmm(D_norm, L)
     
     
@@ -59,7 +60,7 @@ def main():
     #validate.two_bests_roc(D, L) #model selection
     #perform_calibration(D_norm,L)
     #validate_fusion(D_norm,L)
-    eval.evaluation()
+    #eval.evaluation()
 
 def plot(DTR, LTR, gaussianize):
     #save histograms of the distribution of all the features in '../Images' folder. E
@@ -151,7 +152,7 @@ def train_evaluate_logreg(D,L):
             print ("###############################################")
             
         for piT in [0.1, 0.5, 0.9]:
-            Options['lambdaa']=1e-06    
+            Options['lambdaa']=1e-05    
             Options['piT']=piT
             for pi in [0.1, 0.5, 0.9]:
                 min_dcf_kfold = validate.kfold(D, L, k, pi, logreg.compute_score, Options)[0]
