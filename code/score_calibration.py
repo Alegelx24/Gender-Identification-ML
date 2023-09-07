@@ -45,7 +45,8 @@ def min_vs_act(DTR,LTR, DEV=None, LEV=None, evaluation=False):
     if evaluation:
         plt.savefig("./images/ScoreCalibration/actVSmin_EVALUATION.pdf")
     else:
-        plt.savefig("./images/ScoreCalibration/actVSmin.pdf")
+        print("no evaluation")
+        #plt.savefig("./images/ScoreCalibration/actVSmin.pdf")
     plt.show()
     
 #first approach to calibrate the score: find optimal threshold on training scores samples, evaluate actual dcf with optimal threshold on evaluation scores samples
