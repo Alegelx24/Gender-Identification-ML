@@ -39,7 +39,7 @@ def main():
     #svm.plot_RBF_minDCF_wrt_C(D, L, gaussianize)
     #train_evaluate_svm(D,L)
 
-    gmm.plot_minDCF_wrt_components(D, D_norm, L)
+    #gmm.plot_minDCF_wrt_components(D, D_norm, L)
     #train_evaluate_gmm(D_norm, L)
     
     
@@ -58,8 +58,8 @@ def main():
 
     
     #validate.two_bests_roc(D, L) #model selection
-    #perform_calibration(D_norm,L)
-    #validate_fusion(D_norm,L)
+    perform_calibration(D_norm,L)
+    validate_fusion(D_norm,L)
     #eval.evaluation()
 
 def plot(DTR, LTR, gaussianize):
@@ -329,14 +329,14 @@ def train_evaluate_gmm(D,L):
           
 def perform_calibration(D,L):
     calibration.min_vs_act(D, L)
-    calibration.optimal_threshold(D,L)
-    calibration.validate_score_trasformation(D, L)
-    calibration.min_vs_act_after_calibration(D, L)
+    #calibration.optimal_threshold(D,L)
+    #calibration.validate_score_trasformation(D, L)
+    #calibration.min_vs_act_after_calibration(D, L)
   
 
 def validate_fusion(D,L):
-    #fusion.validate_fused_scores(D,L)
-    #fusion.ROC_with_fusion(D,L)
+    fusion.validate_fused_scores(D,L)
+    fusion.ROC_with_fusion(D,L)
     fusion.bayes_plot_with_fusion(D,L)
 
 
