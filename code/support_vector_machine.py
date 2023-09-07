@@ -119,9 +119,9 @@ def plot_linear_minDCF_wrt_C(DTR,LTR,gaussianize, DEV=None, LEV=None, evaluation
         plt.xlabel("C")
         plt.ylabel("min_DCF")
         if gaussianize:
-            plt.savefig("./images/min_DCF_C_linearSVM_gaussianized.pdf")
+            plt.savefig("./images/min_DCF_C_linearSVM_gaussianized.png")
         else:
-            plt.savefig("./images/min_DCF_C_linearSVM_raw.pdf")
+            plt.savefig("./images/min_DCF_C_linearSVM_raw.png")
         plt.show()
     
     else: #compare plot of validation and evaluation set
@@ -155,9 +155,9 @@ def plot_linear_minDCF_wrt_C(DTR,LTR,gaussianize, DEV=None, LEV=None, evaluation
         plt.ylabel("min_DCF")
         plt.legend()
         if gaussianize:
-            plt.savefig("./images/min_DCF_C_linearSVM_evaluation_gaussianized.pdf")
+            plt.savefig("./images/min_DCF_C_linearSVM_evaluation_gaussianized.png")
         else:
-            plt.savefig("./images/min_DCF_C_linearSVM_evaluation_raw.pdf")
+            plt.savefig("./images/min_DCF_C_linearSVM_evaluation_raw.png")
         plt.show()
         
     #return min_DCFs
@@ -272,9 +272,9 @@ def plot_RBF_minDCF_wrt_C(DTR,LTR,gaussianize, DEV=None, LEV=None, evaluation=Fa
         plt.xlabel("C")
         plt.ylabel("min_DCF")
         if gaussianize:
-            plt.savefig("./images/min_DCF_C_RBF_SVM_gaussianized.pdf")
+            plt.savefig("./images/min_DCF_C_RBF_SVM_gaussianized.png")
         else:
-            plt.savefig("./images/min_DCF_C_RBF_SVM_zscore.pdf")#################################################################################
+            plt.savefig("./images/min_DCF_C_RBF_SVM_raw.png")#################################################################################
         plt.show()
         
     else:#compare validation and evaluation
@@ -313,9 +313,9 @@ def plot_RBF_minDCF_wrt_C(DTR,LTR,gaussianize, DEV=None, LEV=None, evaluation=Fa
         plt.xlabel("C")
         plt.ylabel("min_DCF")
         if gaussianize:
-            plt.savefig("./images/min_DCF_C_RBF_SVM_eval_gaussianized.pdf")
+            plt.savefig("./images/min_DCF_C_RBF_SVM_eval_gaussianized.png")
         else:
-            plt.savefig("./images/min_DCF_C_RBF_SVM__eval_raw.pdf")
+            plt.savefig("./images/min_DCF_C_RBF_SVM__eval_raw.png")
         plt.show()
     
     return min_DCFs
@@ -392,7 +392,7 @@ def plot_quadratic_minDCF_wrt_C(DTR,LTR,gaussianize, DEV=None, LEV=None, evaluat
     print('Quadratic SVM: computation for plotting min_cdf wrt C started...')
     min_DCFs=[]
     for pi in [0.1, 0.5, 0.9]:
-        C_array = numpy.logspace(-5,5, num = 20)
+        C_array = numpy.logspace(-5,5, num = 30)
         for C in C_array:
                 Options= {'C': C,
                           'piT':0.5,
@@ -400,11 +400,11 @@ def plot_quadratic_minDCF_wrt_C(DTR,LTR,gaussianize, DEV=None, LEV=None, evaluat
                 min_dcf_kfold = validate.kfold(DTR, LTR, K_fold, pi, compute_score_quadratic, Options )[0] 
                 min_DCFs.append(min_dcf_kfold)
                 print ("computed min_dcf for pi=%f -C=%f - results min_dcf=%f "%(pi,C,min_dcf_kfold))
-    min_DCFs_p0 = min_DCFs[0:20] #min_DCF results with prior = 0.1
-    min_DCFs_p1 = min_DCFs[20:40] #min_DCF results with prior = 0.5
-    min_DCFs_p2 = min_DCFs[40:60] #min_DCF results with prior = 0.9
+    min_DCFs_p0 = min_DCFs[0:30] #min_DCF results with prior = 0.1
+    min_DCFs_p1 = min_DCFs[30:60] #min_DCF results with prior = 0.5
+    min_DCFs_p2 = min_DCFs[60:90] #min_DCF results with prior = 0.9
     
-    C_array = numpy.logspace(-5,5, num = 20)
+    C_array = numpy.logspace(-5,5, num = 30)
    
     
     if evaluation == False:
@@ -422,9 +422,9 @@ def plot_quadratic_minDCF_wrt_C(DTR,LTR,gaussianize, DEV=None, LEV=None, evaluat
         plt.xlabel("C")
         plt.ylabel("min_DCF")
         if gaussianize:
-            plt.savefig("./images/min_DCF_C_QuadraticSVM_gaussianized.pdf")
+            plt.savefig("./images/min_DCF_C_QuadraticSVM_gaussianized.png")
         else:
-            plt.savefig("./images/min_DCF_C_QuadraticSVM_raw.pdf")##########################################################################
+            plt.savefig("./images/min_DCF_C_QuadraticSVM_raw.png")
         plt.show()
         
         
@@ -432,7 +432,7 @@ def plot_quadratic_minDCF_wrt_C(DTR,LTR,gaussianize, DEV=None, LEV=None, evaluat
         print("Evaluation samples")
         min_DCFs=[]
         for pi in [0.1, 0.5, 0.9]:
-            C_array = numpy.logspace(-5,5, num = 20)
+            C_array = numpy.logspace(-5,5, num = 30)
             for C in C_array:
                     Options= {'C': C,
                               'piT':0.5,
@@ -442,9 +442,9 @@ def plot_quadratic_minDCF_wrt_C(DTR,LTR,gaussianize, DEV=None, LEV=None, evaluat
                     min_DCFs.append(min_DCF_ev)
                     print ("computed min_dcf for pi=%f -C=%f - results min_dcf=%f "%(pi,C,min_DCF_ev))
             print(min_DCFs)
-        min_DCFs_p0_eval = min_DCFs[0:20] #min_DCF results with prior = 0.1
-        min_DCFs_p1_eval = min_DCFs[20:40] #min_DCF results with prior = 0.5
-        min_DCFs_p2_eval = min_DCFs[40:60] #min_DCF results with prior = 0.9
+        min_DCFs_p0_eval = min_DCFs[0:30] #min_DCF results with prior = 0.1
+        min_DCFs_p1_eval = min_DCFs[30:60] #min_DCF results with prior = 0.5
+        min_DCFs_p2_eval = min_DCFs[60:90] #min_DCF results with prior = 0.9
         
        
         plt.figure()
@@ -460,9 +460,9 @@ def plot_quadratic_minDCF_wrt_C(DTR,LTR,gaussianize, DEV=None, LEV=None, evaluat
         plt.xlabel("C")
         plt.ylabel("min_DCF")
         if gaussianize:
-            plt.savefig("./images/min_DCF_C_QuadraticSVM_eval_gaussianized.pdf")
+            plt.savefig("./images/min_DCF_C_QuadraticSVM_eval_gaussianized.png")
         else:
-            plt.savefig("./images/min_DCF_C_QuadraticSVM_eval_raw.pdf")
+            plt.savefig("./images/min_DCF_C_QuadraticSVM_eval_raw.png")
         plt.show()
         
     return min_DCFs
