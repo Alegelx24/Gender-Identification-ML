@@ -88,7 +88,7 @@ def ROC_with_fusion(D,L):
     plt.xlabel('False Positive Rate')
     plt.ylabel('True Negative Rate')
     plt.legend()
-    plt.savefig("./images/fusion_ROC_lr+svm.pdf" )
+    plt.savefig("./images/fusion_ROC_lr+svm.png" )
     plt.show()
     
 def bayes_plot_with_fusion(D,L):
@@ -126,7 +126,7 @@ def bayes_plot_with_fusion(D,L):
     
     
     plt.figure()
-    plt.plot(pi_array, y_min1, 'r',  label='GMM min_DCF')
+    plt.plot(pi_array, y_min1, 'r',  label='Log Reg min_DCF')
     plt.plot(pi_array, y_min2, 'b',  label='SVM min_DCF')
     plt.plot(pi_array, y_min3, 'g',  label='Fusion min_DCF')
     plt.plot(pi_array, y_ac3t, 'g--',  label='Fusion act_DCF')
@@ -136,7 +136,7 @@ def bayes_plot_with_fusion(D,L):
     plt.xlabel("application")
     plt.ylabel("cost")
     plt.tight_layout() # Use with non-default font size to keep axis label inside the figure
-    plt.savefig("./images/actVSmin_fusion_evaluatio_lr+svm.pdf")
+    plt.savefig("./images/actVSmin_fusion_evaluatio_lr+svm.png")
     plt.show()
     
     
