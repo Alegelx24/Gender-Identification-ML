@@ -59,8 +59,8 @@ def main():
     
     #validate.two_bests_roc(D, L) #model selection
     #perform_calibration(D_norm,L)
-    validate_fusion(D_norm,L)
-    #eval.evaluation()
+    #validate_fusion(D_norm,L)
+    eval.evaluation()
 
 def plot(DTR, LTR, gaussianize):
     #save histograms of the distribution of all the features in '../Images' folder. E
