@@ -35,7 +35,7 @@ def main():
     
     
     #svm.plot_linear_minDCF_wrt_C(D, L, gaussianize)
-    svm.plot_quadratic_minDCF_wrt_C(D, L, gaussianize)
+    #svm.plot_quadratic_minDCF_wrt_C(D, L, gaussianize)
     svm.plot_RBF_minDCF_wrt_C(D, L, gaussianize)
     #train_evaluate_svm(D,L)
 
@@ -232,7 +232,7 @@ def train_evaluate_svm(D,L):
                 print("Quadratric SVM -piT = %f -C=%f - pi = %f - minDCF = %f" %(piT,Options['C'], pi,min_dcf_kfold))
                 
         Options['rebalance']=False
-        Options['C']=0.1##################################################################################################
+        Options['C']=0.1
         for pi in [0.1]:
             min_dcf_kfold = validate.kfold(D, L, k, pi, svm.compute_score_quadratic, Options)[0]
             print("Quadratic SVM without rebalancing -C=%f - pi = %f - minDCF = %f" %(Options['C'], pi,min_dcf_kfold))
