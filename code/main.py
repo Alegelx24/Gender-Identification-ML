@@ -36,7 +36,7 @@ def main():
     
     #svm.plot_linear_minDCF_wrt_C(D, L, gaussianize)
     #svm.plot_quadratic_minDCF_wrt_C(D, L, gaussianize)
-    svm.plot_RBF_minDCF_wrt_C(D, L, gaussianize)
+    #svm.plot_RBF_minDCF_wrt_C(D, L, gaussianize)
     #train_evaluate_svm(D,L)
 
     #gmm.plot_minDCF_wrt_components(D, D_norm, L)
@@ -53,8 +53,8 @@ def main():
     
     #svm.plot_linear_minDCF_wrt_C(D_norm, L, gaussianize)
     #svm.plot_quadratic_minDCF_wrt_C(D_norm, L, gaussianize)
-    #svm.plot_RBF_minDCF_wrt_C(D_norm, L, gaussianize)
-    #train_evaluate_svm(D_norm,L)
+    #svm.plot_RBF_minDCF_wrt_C(D_norm, L, gaussianize=True)
+    train_evaluate_svm(D_norm,L)
 
     
     #validate.two_bests_roc(D, L) #model selection
@@ -194,52 +194,6 @@ def train_evaluate_svm(D,L):
         if m < 12:
             D = util.pca(m, D)[0]
             print ("##########################################")
-            print ("############ SVM LINEAR with m = %d #######" %m)
-            print ("##########################################")
-        else:
-            print ("##########################################")
-            print ("######## SVM LINEAR with NO PCA ##########")
-            print ("##########################################")
-            
-        Options['C']=1
-        for piT in [0.1, 0.5, 0.9]:
-            for pi in [0.1, 0.5, 0.9]:
-                Options['piT']=piT
-                Options['rebalance']=True
-                min_dcf_kfold = validate.kfold(D, L, k, pi, svm.compute_score_linear, Options)[0]
-                print("Linear SVM -piT = %f -C=%f - pi = %f - minDCF = %f" %(piT,Options['C'], pi,min_dcf_kfold))
-                
-        Options['rebalance']=False
-        for pi in [0.1, 0.5, 0.9]:
-                min_dcf_kfold = validate.kfold(D, L, k, pi, svm.compute_score_linear, Options)[0]
-                print("Linear SVM without rebalancing -C=%f - pi = %f - minDCF = %f" %(Options['C'], pi,min_dcf_kfold)) 
-          
-        if m < 12:
-            D = util.pca(m, D)[0]
-            print ("##########################################")
-            print ("########## SVM QUADRATIC with m = %d ######" %m)
-            print ("##########################################")
-        else:
-            print ("##########################################")
-            print ("########SVM QUADRATIC with NO PCA ########")
-            print ("##########################################")
-        for piT in [0.1, 0.5, 0.9]:
-            for pi in [0.1, 0.5, 0.9]:
-                Options['C']=1e-03
-                Options['piT']=piT
-                Options['rebalance']=True
-                min_dcf_kfold = validate.kfold(D, L, k, pi, svm.compute_score_quadratic, Options)[0]
-                print("Quadratric SVM -piT = %f -C=%f - pi = %f - minDCF = %f" %(piT,Options['C'], pi,min_dcf_kfold))
-                
-        Options['rebalance']=False
-        Options['C']=0.1
-        for pi in [0.1]:
-            min_dcf_kfold = validate.kfold(D, L, k, pi, svm.compute_score_quadratic, Options)[0]
-            print("Quadratic SVM without rebalancing -C=%f - pi = %f - minDCF = %f" %(Options['C'], pi,min_dcf_kfold))
-           
-        if m < 12:
-            D = util.pca(m, D)[0]
-            print ("##########################################")
             print ("######### SVM RBF with m = %d #############" %m)
             print ("##########################################")
         else:
@@ -328,9 +282,9 @@ def train_evaluate_gmm(D,L):
    
           
 def perform_calibration(D,L):
-    calibration.min_vs_act(D, L)
+    #calibration.min_vs_act(D, L)
     #calibration.optimal_threshold(D,L)
-    #calibration.validate_score_trasformation(D, L)
+    calibration.validate_score_trasformation(D, L)
     #calibration.min_vs_act_after_calibration(D, L)
   
 
