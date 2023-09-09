@@ -15,15 +15,25 @@ def mcol(x):
 def min_vs_act(DTR,LTR, DEV=None, LEV=None, evaluation=False):
     pi_array = numpy.linspace(-4, 4, 100)
 
+    '''
+    #GMM
     Options={
         'Type':'full-tied',
         'iterations': 2}   
+    '''
+    #Linear Logreg
+    Options={
+    'lambdaa' : 1e-5,
+    'piT': 0.9,
+    }
   
     if evaluation:
-        scores1 = gmm.compute_score(DEV, DTR, LTR, Options)
+        #scores1 = gmm.compute_score(DEV, DTR, LTR, Options)
+        scores1 = log_reg.compute_score(DEV, DTR, LTR, Options)
+
         y_min1, y_act1 = validate.bayes_error(pi_array, scores1, LEV)
     else:
-        _ , scores1, labels1 = validate.kfold(DTR, LTR, 5, 1, gmm.compute_score, Options) #pi(set to random value 1) actually not used to compute scores
+        _ , scores1, labels1 = validate.kfold(DTR, LTR, 5, 1, log_reg.compute_score, Options) 
         y_min1, y_act1 = validate.bayes_error(pi_array, scores1, labels1)
         
     for pi in [0.1, 0.5, 0.9]:
@@ -31,11 +41,11 @@ def min_vs_act(DTR,LTR, DEV=None, LEV=None, evaluation=False):
             act_dcf = validate.compute_act_DCF(scores1, LEV, pi, 1, 1)
         else:
             act_dcf= validate.compute_act_DCF(scores1, labels1, pi, 1, 1)
-        print(" gmm %s -components=%d - pi = %f --> actDCF = %f" %(Options['Type'], 2**Options['iterations'], pi,act_dcf))
+        print(" gmm %s -components=%d - pi = %f --> actDCF = %f" %(Options['lambdaa'], 2**Options['piT'], pi,act_dcf))
     
     plt.figure()
-    plt.plot(pi_array, y_min1, 'r--',  label='Gmm Full Tied min_DCF')
-    plt.plot(pi_array, y_act1, 'r', label='Gmm Full Tied act_DCF')
+    plt.plot(pi_array, y_min1, 'r--',  label='Linear LR min_DCF')
+    plt.plot(pi_array, y_act1, 'r', label='Linear LR act_DCF')
     plt.legend()
     plt.ylim(top=1.5)
     plt.ylim(bottom=0)
@@ -43,12 +53,16 @@ def min_vs_act(DTR,LTR, DEV=None, LEV=None, evaluation=False):
     plt.ylabel("cost")
     plt.tight_layout() # Use with non-default font size to keep axis label inside the figure
     if evaluation:
-        plt.savefig("./images/ScoreCalibration/actVSmin_EVALUATION.pdf")
+        plt.savefig("./images/ScoreCalibration/actVSmin_EVALUATION_logreg.png")
     else:
         print("no evaluation")
-        #plt.savefig("./images/ScoreCalibration/actVSmin.pdf")
+        plt.savefig("./images/ScoreCalibration/actVSmin.png")
     plt.show()
     
+
+
+
+
 #first approach to calibrate the score: find optimal threshold on training scores samples, evaluate actual dcf with optimal threshold on evaluation scores samples
 def optimal_threshold (DTR,LTR, DEV=None, LEV=None, evaluation=False):
     print('##############OPTIMAL THRESHOLD ESTIMATION #########################')
@@ -128,17 +142,29 @@ def score_trasformation(scores_TR, LTR, scores_TE,pi):
 #second approach to calibrate score: trasform score so that theoretical threshold provide close to optimal values over different applications
 def validate_score_trasformation(DTR,LTR, DEV=None, LEV=None, evaluation=False):
     print ('\n\n############SCORE TRASFORMATION###################')
-    #best model 1
+    
+    '''
+    #GMM
     Options={
         'Type':'full-tied',
         'iterations': 2}   
+    '''
+    #Linear Logreg
+    Options={
+    'lambdaa' : 1e-5,
+    'piT': 0.9,
+    }
+     
      
     for pi in [0.1, 0.5, 0.9]:
-        _ , scores1, labels1 = validate.kfold(DTR, LTR, 5, 1, gmm.compute_score, Options) #pi(set to random value 1) actually not used to compute scores
+        # _ , scores1, labels1 = validate.kfold(DTR, LTR, 5, 1, gmm.compute_score, Options) #pi(set to random value 1) actually not used to compute scores
+        _ , scores1, labels1 = validate.kfold(DTR, LTR, 5, 1, log_reg.compute_score, Options) #pi(set to random value 1) actually not used to compute scores
         scores_TR1, LTR1, scores_TE1, LTE1 = split_scores(scores1, labels1) #split and shuffle scores
         calibrated_scores1 = score_trasformation(scores_TR1, LTR1, scores_TE1, pi)
         if evaluation:
-            scores_ev = gmm.compute_score(DEV, DTR, LTR, Options)
+            #scores_ev = gmm.compute_score(DEV, DTR, LTR, Options) #GMM
+            scores_ev = log_reg.compute_score(DEV, DTR, LTR, Options) #LOGREG
+
             calibrated_scores_ev = score_trasformation(scores_TR1, LTR1, scores_ev, pi)
 
         min_DCF_validation = validate.compute_min_DCF(scores_TE1, LTE1, pi, 1, 1)
@@ -148,16 +174,16 @@ def validate_score_trasformation(DTR,LTR, DEV=None, LEV=None, evaluation=False):
         if evaluation:
             min_DCF_ev = validate.compute_min_DCF(scores_ev, LEV, pi, 1, 1)
             act_DCF_non_calibrated_ev= validate.compute_act_DCF(scores_ev, LEV, pi, 1, 1, th=None) #if th=None, compute_act_DCF function will use theoretical threshold
-            print('GMM full tied 4 components: prior pi= % f - min_dcf computed on evaluation scores = %f' %(pi,min_DCF_ev))
-            print('GMM full tied 4 components: act DCF computed on theoretical threshold (pi=%f) without calibration = %f for evaluation set'%(pi,act_DCF_non_calibrated_ev))
+            print('Linear LR: prior pi= % f - min_dcf computed on evaluation scores = %f' %(pi,min_DCF_ev))
+            print('Linear LR: act DCF computed on theoretical threshold (pi=%f) without calibration = %f for evaluation set'%(pi,act_DCF_non_calibrated_ev))
     
         print('GMM full tied 4 components: result of act_DCF computed on trasformed scores with log reg pi = %f reported below:'%pi)
         for pi in [0.1, 0.5, 0.9]:
             act_DCF= validate.compute_act_DCF(calibrated_scores1, LTE1, pi, 1, 1, th=None) #if th=None, compute_act_DCF function will use theoretical threshold
-            print('GMM full tied 4 components: act DCF computed on theoretical threshold (pi=%f) but with trasformed scores = %f'%(pi,act_DCF))
+            print('Linear LR: act DCF computed on theoretical threshold (pi=%f) but with trasformed scores = %f'%(pi,act_DCF))
             if evaluation:
                 act_DCF_ev= validate.compute_act_DCF(calibrated_scores_ev, LEV, pi, 1, 1, th=None) #if th=None, compute_act_DCF function will use theoretical threshold
-                print('GMM full tied 4 components: evaluation set act DCF computed on theoretical threshold (pi=%f) but with trasformed scores = %f'%(pi,act_DCF_ev))
+                print('Linear LR: evaluation set act DCF computed on theoretical threshold (pi=%f) but with trasformed scores = %f'%(pi,act_DCF_ev))
                 
         print('')
     
@@ -167,29 +193,42 @@ def min_vs_act_after_calibration(DTR,LTR, DEV=None, LEV=None, evaluation=False):
     
     pi_array = numpy.linspace(-4, 4, 100)
     
-    Options={
+    '''Options={
         'Type':'full-tied',
         'iterations': 2}   
      
-    _ , scores1, labels1 = validate.kfold(DTR, LTR, 5, 0.5, gmm.compute_score , Options)
+    '''
+    
+    #Linear Logreg
+    Options={
+    'lambdaa' : 1e-5,
+    'piT': 0.9,
+    }
+     
+    
+    #_ , scores1, labels1 = validate.kfold(DTR, LTR, 5, 0.5, gmm.compute_score , Options)
+    _ , scores1, labels1 = validate.kfold(DTR, LTR, 5, 0.5, log_reg.compute_score , Options)
+    
     scores_TR1, LTR1, scores_TE1, LTE1 = split_scores(scores1, labels1) #split and shuffle scores
     calibrated_scores1 = score_trasformation(scores_TR1, LTR1, scores_TE1, 0.5)
     y_min1, y_act1= validate.bayes_error(pi_array, calibrated_scores1, LTE1)
     if evaluation:
-        scores1_ev = gmm.compute_score(DEV, DTR, LTR, Options)
+        #scores1_ev = gmm.compute_score(DEV, DTR, LTR, Options)
+
+        scores1_ev = log_reg.compute_score(DEV, DTR, LTR, Options)
         calibrated_scores1 = score_trasformation(scores_TR1, LTR1, scores1_ev, 0.5)
         y_min1, y_act1= validate.bayes_error(pi_array, calibrated_scores1, LEV)
     
     plt.figure()
-    plt.plot(pi_array, y_min1, 'r--',  label='GMM full tied min_DCF')
-    plt.plot(pi_array, y_act1, 'r', label='GMM full tied act_DCF')
+    plt.plot(pi_array, y_min1, 'r--',  label='Linear LR min_DCF')
+    plt.plot(pi_array, y_act1, 'r', label='Linear LR act_DCF')
     plt.legend()
     plt.ylim(top=1.5)
     plt.ylim(bottom=0)
     plt.xlabel("application")
     plt.ylabel("cost")
     plt.tight_layout() # Use with non-default font size to keep axis label inside the figure
-    plt.savefig("./images/ScoreCalibration/actVSmin_after_calibration_evaluation.pdf")
+    plt.savefig("./images/ScoreCalibration/actVSmin_after_calibration_EVAL.png")
     plt.show()
     print('########## Bayes Error Plot after calibration END #################')
 

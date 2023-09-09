@@ -282,9 +282,9 @@ def train_evaluate_gmm(D,L):
    
           
 def perform_calibration(D,L):
-    #calibration.min_vs_act(D, L)
+    calibration.min_vs_act(D, L)
     #calibration.optimal_threshold(D,L)
-    calibration.validate_score_trasformation(D, L)
+    #calibration.validate_score_trasformation(D, L)
     #calibration.min_vs_act_after_calibration(D, L)
   
 
