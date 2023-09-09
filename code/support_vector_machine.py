@@ -272,9 +272,9 @@ def plot_RBF_minDCF_wrt_C(DTR,LTR,gaussianize, DEV=None, LEV=None, evaluation=Fa
         plt.xlabel("C")
         plt.ylabel("min_DCF")
         if gaussianize:
-            plt.savefig("./images/min_DCF_C_RBF_SVM_gaussianized.png")
+            plt.savefig("./images/min_DCF_C_RBF_SVM_zscore.png")
         else:
-            plt.savefig("./images/min_DCF_C_RBF_SVM_raw.png")#################################################################################
+            plt.savefig("./images/min_DCF_C_RBF_SVM_.png")#################################################################################
         plt.show()
         
     else:#compare validation and evaluation
