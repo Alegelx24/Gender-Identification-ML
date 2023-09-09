@@ -59,7 +59,7 @@ def LBG(D, iterations, Type,alfa=0.1):
 
     return gmm   
     
-def logpdf_GAU_ND_opt1 (X,mu,C):
+def logpng_GAU_ND_opt1 (X,mu,C):
      P=numpy.linalg.inv(C)
      const= -0.5 * X.shape[0] * numpy.log(2*numpy.pi)
      const += -0.5*numpy.linalg.slogdet(C)[1]
@@ -77,7 +77,7 @@ def GMM_ll_perSample(X, gmm):
     N=X.shape[1]
     S=numpy.zeros((G,N))
     for g in range(G):
-        S[g, :] = logpdf_GAU_ND_opt1(X, gmm[g][1], gmm[g][2]) + numpy.log(gmm[g][0]) #the second addend represents the prior for each gaussian
+        S[g, :] = logpng_GAU_ND_opt1(X, gmm[g][1], gmm[g][2]) + numpy.log(gmm[g][0]) #the second addend represents the prior for each gaussian
     return scipy.special.logsumexp(S,axis=0)
 
 def EM_full(X, gmm):
@@ -92,7 +92,7 @@ def EM_full(X, gmm):
             ll_old = ll_new
             SJ = numpy.zeros((G, N))
             for g in range(G):
-                SJ[g, :] = logpdf_GAU_ND_opt1(X, gmm[g][1], gmm[g][2]) + numpy.log(gmm[g][0])
+                SJ[g, :] = logpng_GAU_ND_opt1(X, gmm[g][1], gmm[g][2]) + numpy.log(gmm[g][0])
             SM = scipy.special.logsumexp(SJ, axis=0)
             ll_new = SM.sum() / N
             P = numpy.exp(SJ - SM)
@@ -129,7 +129,7 @@ def EM_diag(X, gmm):
         ll_old = ll_new
         SJ = numpy.zeros((G, N))
         for g in range(G):
-            SJ[g, :] = logpdf_GAU_ND_opt1(X, gmm[g][1], gmm[g][2]) + numpy.log(gmm[g][0])
+            SJ[g, :] = logpng_GAU_ND_opt1(X, gmm[g][1], gmm[g][2]) + numpy.log(gmm[g][0])
         SM = scipy.special.logsumexp(SJ, axis=0)
         ll_new = SM.sum() / N
         P = numpy.exp(SJ - SM)
@@ -167,7 +167,7 @@ def EM_full_tied(X, gmm):
         ll_old = ll_new
         SJ = numpy.zeros((G, N))
         for g in range(G):
-            SJ[g, :] = logpdf_GAU_ND_opt1(X, gmm[g][1], gmm[g][2]) + numpy.log(gmm[g][0])
+            SJ[g, :] = logpng_GAU_ND_opt1(X, gmm[g][1], gmm[g][2]) + numpy.log(gmm[g][0])
         SM = scipy.special.logsumexp(SJ, axis=0)
         ll_new = SM.sum() / N
         P = numpy.exp(SJ - SM)
@@ -213,7 +213,7 @@ def EM_diag_tied(X, gmm):
         ll_old = ll_new
         SJ = numpy.zeros((G, N))
         for g in range(G):
-            SJ[g, :] = logpdf_GAU_ND_opt1(X, gmm[g][1], gmm[g][2]) + numpy.log(gmm[g][0])
+            SJ[g, :] = logpng_GAU_ND_opt1(X, gmm[g][1], gmm[g][2]) + numpy.log(gmm[g][0])
         SM = scipy.special.logsumexp(SJ, axis=0)
         ll_new = SM.sum() / N
         P = numpy.exp(SJ - SM)
@@ -279,7 +279,7 @@ def plot_minDCF_wrt_components(DTR, DTR_zscore,LTR, DEV=None, DEV_zscore=None, L
             plt.legend()
             plt.xlabel("GMM %s components" %Type)
             plt.ylabel("min_DCF")
-            plt.savefig("./images/%s_gmm_minDCF_wrt_components.pdf" %Type)
+            plt.savefig("./images/%s_gmm_minDCF_wrt_components.png" %Type)
             plt.show()
         
         else:
@@ -317,7 +317,7 @@ def plot_minDCF_wrt_components(DTR, DTR_zscore,LTR, DEV=None, DEV_zscore=None, L
                 plt.legend()
                 plt.xlabel("GMM components")
                 plt.ylabel("min_DCF")
-                plt.savefig("./images/eval/%s_gmm_minDCF_wrt_evaluation_components.pdf" %Type)
+                plt.savefig("./images/eval/%s_gmm_minDCF_wrt_evaluation_components.png" %Type)
                 plt.show()
 
     return min_DCFs_raw, min_DCFs_zscore

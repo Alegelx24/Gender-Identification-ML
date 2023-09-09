@@ -19,14 +19,14 @@ def evaluation():
     gaussianize=False
     #evaluation_MVG(DTR, LTR, DEV, LEV)
     #evaluation_log_reg(DTR, LTR, DEV, LEV, gaussianize)
-    evaluation_SVM(DTR, LTR, DEV, LEV, gaussianize)
+    #evaluation_SVM(DTR, LTR, DEV, LEV, gaussianize)
     #evaluation_gmm(DTR, DTR_norm, LTR, DEV, DEV_norm, LEV, False) #last field is normalization
 
     
     print('-----------EVALUATION ON ZSCORE FEATURES STARTED...-----------------')
     #evaluation_MVG(DTR_norm, LTR, DEV_norm, LEV)
     #evaluation_log_reg(DTR_norm, LTR, DEV_norm, LEV, gaussianize=True)
-    #evaluation_SVM(DTR_norm, LTR, DEV_norm, LEV,gaussianize )
+    evaluation_SVM(DTR_norm, LTR, DEV_norm, LEV,gaussianize=True )
     #evaluation_gmm(DTR, DTR_norm, LTR, DEV, DEV_norm, LEV, True)
     
 
@@ -85,7 +85,7 @@ def evaluation_MVG(DTR, LTR, DEV, LEV):
         
 
 def evaluation_log_reg(DTR, LTR, DEV, LEV, gaussianize):
-    log_reg.plot_minDCF_wrt_lamda(DTR,LTR, gaussianize, DEV=DEV, LEV=LEV, evaluation=True)
+    #log_reg.plot_minDCF_wrt_lamda(DTR,LTR, gaussianize, DEV=DEV, LEV=LEV, evaluation=True)
     log_reg.quadratic_plot_minDCF_wrt_lambda(DTR, LTR, gaussianize, DEV=DEV, LEV=LEV, evaluation=True)
     DTR_copy = DTR
     DEV_copy = DEV
@@ -126,7 +126,7 @@ def evaluation_log_reg(DTR, LTR, DEV, LEV, gaussianize):
 def evaluation_SVM(DTR, LTR, DEV, LEV, gaussianize):
     #svm.plot_linear_minDCF_wrt_C(DTR,LTR,gaussianize, DEV=DEV, LEV=LEV, evaluation=True)
     #svm.plot_quadratic_minDCF_wrt_C(DTR,LTR,gaussianize, DEV=DEV, LEV=LEV, evaluation=True)
-    #svm.plot_RBF_minDCF_wrt_C(DTR,LTR,gaussianize, DEV=DEV, LEV=LEV, evaluation=True)
+    svm.plot_RBF_minDCF_wrt_C(DTR,LTR,gaussianize, DEV=DEV, LEV=LEV, evaluation=True)
     Options={
         'C' : None,
         'piT': None,
@@ -176,7 +176,7 @@ def evaluation_SVM(DTR, LTR, DEV, LEV, gaussianize):
             print ("##########################################")
             
         for piT in [0.1, 0.5, 0.9]:
-            Options['C']=1e-3
+            Options['C']=1e-1
             Options['piT']=piT
             Options['rebalance']=True
             scores_quadratic_svm = svm.compute_score_quadratic(DEV, DTR, LTR, Options)
@@ -184,7 +184,7 @@ def evaluation_SVM(DTR, LTR, DEV, LEV, gaussianize):
                 min_DCF = validate.compute_min_DCF(scores_quadratic_svm, LEV, pi, 1, 1)
                 print("linear SVM -C =1 -piT=%f - pi = %f --> min_DCF= %f" %(piT, pi,min_DCF))
         
-        Options['C']=1e-3
+        Options['C']=1e-1
         Options['rebalance']=False
         scores_quadratic_svm = svm.compute_score_quadratic(DEV, DTR, LTR, Options)
         for pi in [0.1, 0.5, 0.9]:
@@ -203,16 +203,16 @@ def evaluation_SVM(DTR, LTR, DEV, LEV, gaussianize):
             print ("##########################################")
             
         for piT in [0.1, 0.5, 0.9]:
-            Options['C']=100
+            Options['C']=10
             Options['piT']=piT
-            Options['gamma']=0.001
+            Options['gamma']=0.1
             Options['rebalance']=True
             scores_rbf_svm = svm.compute_score_RBF(DEV, DTR, LTR, Options)
             for pi in [0.1, 0.5, 0.9]:
                 min_DCF = validate.compute_min_DCF(scores_rbf_svm, LEV, pi, 1, 1)
                 print("linear SVM -C =1 -piT=%f - pi = %f --> min_DCF= %f" %(piT, pi,min_DCF))
         
-        Options['C']=100
+        Options['C']=10
         Options['rebalance']=False
         scores_rbf_svm = svm.compute_score_RBF (DEV, DTR, LTR, Options)
         for pi in [0.1, 0.5, 0.9]:
