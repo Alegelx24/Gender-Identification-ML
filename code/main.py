@@ -20,7 +20,7 @@ def main():
     
     gaussianize= False 
 
-    #plot(D_centered, L, gaussianize) #plot raw features before gaussianization
+    plot(D, L, gaussianize) #plot raw features before gaussianization
     #gaussianize= True
     #plot(D_gaussianized, L, gaussianize) #plot gaussianized features   
 
@@ -64,9 +64,10 @@ def main():
 
 def plot(DTR, LTR, gaussianize):
     #save histograms of the distribution of all the features in '../Images' folder. E
-    util.plot_histograms(DTR, LTR,gaussianize)
-    util.plot_scatters(DTR, LTR,gaussianize)
-    util.heatmap_generator(DTR, LTR, "correlation_heatmap")
+    util.plot_fraction_explained_variance_pca(DTR, LTR)
+    #util.plot_histograms(DTR, LTR,gaussianize)
+    #util.plot_scatters(DTR, LTR,gaussianize)
+    #util.heatmap_generator(DTR, LTR, "correlation_heatmap")
 
 
 

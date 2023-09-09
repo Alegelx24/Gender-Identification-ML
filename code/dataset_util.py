@@ -104,6 +104,22 @@ def center_dataset(DTR, DEV = None, normalize_ev=False):
     return centered_DTR, DEV
 
 
+def plot_fraction_explained_variance_pca(DTR, LTR):
+    DProjected, P = pca(DTR.shape[0] + 1, DTR)
+    
+    eigenvalues = numpy.linalg.eigvals(numpy.cov(DProjected))
+    sorted_eigenvalues = numpy.sort(eigenvalues)[::-1]
+    total_variance = numpy.sum(sorted_eigenvalues)
+    explained_variance_ratio = numpy.cumsum(sorted_eigenvalues / total_variance)
+    
+    n_dimensions = DProjected.shape[0]
+    plt.plot(range(1, n_dimensions + 1), explained_variance_ratio, marker='o')
+    plt.xlabel('Number of dimensions')
+    plt.ylabel('Fraction of explained variance')
+    plt.savefig('./images/DatasetAnalysis/explained_variance_Pca.png')
+    plt.close()
+
+
 def plot_histograms(D, L, gaussianize):
 
     D0 = D[:, L==0]
@@ -231,6 +247,5 @@ def pca(m, D):
     return DProjected, P
 
 
-    
     
     
