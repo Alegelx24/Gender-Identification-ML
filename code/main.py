@@ -10,64 +10,67 @@ import model_fusion as fusion
 import evaluation as eval
 k=5 #K-fold
 
-  
 def main():
     D,L = util.load_training_set('./data/Train.txt')
     D_centered=util.center_dataset(D)[0]
     D_norm= util.scale_ZNormalization(D)[0]
-    #D_gaussianized= util.gaussianize_training(D)
-    
-    
-    gaussianize= False 
+        
+    normalized= False 
 
-    #plot(D, L, gaussianize) #plot raw features before gaussianization
-    #gaussianize= True
-    #plot(D_gaussianized, L, gaussianize) #plot gaussianized features   
+    plot(D, L, normalized) #plot raw features before gaussianization
 
     #TRAINING
     print("VALIDATION WITHOUT ZSCORE NORMALIZATION")
 
-    #train_evaluate_gaussian_models(D_norm, L)
+    train_evaluate_gaussian_models(D, L)
    
-    #logreg.plot_minDCF_wrt_lamda(D, L, gaussianize=False)
-    #logreg.quadratic_plot_minDCF_wrt_lambda(D, L, gaussianize=False)
-    #train_evaluate_logreg(D_norm, L)
+    logreg.plot_minDCF_wrt_lamda(D, L, normalized=False)
+    logreg.quadratic_plot_minDCF_wrt_lambda(D, L, normalized=False)
+    train_evaluate_logreg(D, L)
     
-    
-    #svm.plot_linear_minDCF_wrt_C(D, L, gaussianize)
-    #svm.plot_quadratic_minDCF_wrt_C(D, L, gaussianize)
-    #svm.plot_RBF_minDCF_wrt_C(D, L, gaussianize)
-    #train_evaluate_svm(D,L)
+    svm.plot_linear_minDCF_wrt_C(D, L, normalized)
+    svm.plot_quadratic_minDCF_wrt_C(D, L, normalized)
+    svm.plot_RBF_minDCF_wrt_C(D, L, normalized)
+    train_evaluate_svm(D,L)
 
-    #gmm.plot_minDCF_wrt_components(D, D_norm, L)
-    #train_evaluate_gmm(D_norm, L)
-    
-    
-    #print("VALIDATION WITH ZSCORE NORMALIZATION")
-    #train_evaluate_gaussian_models_zscore(D_norm, L)
+    gmm.plot_minDCF_wrt_components(D, D_norm, L)
+    train_evaluate_gmm(D, L)
+      
+    print("VALIDATION WITH ZSCORE NORMALIZATION")
+    normalized= True 
+
+    train_evaluate_gaussian_models_zscore(D_norm, L)
    
-    #logreg.plot_minDCF_wrt_lamda(D_norm, L, gaussianize=False)
-    #logreg.quadratic_plot_minDCF_wrt_lambda(D_norm, L, gaussianize=False)
-    #train_evaluate_logreg(D_Norm, L)
-
+    logreg.plot_minDCF_wrt_lamda(D_norm, L, normalized)
+    logreg.quadratic_plot_minDCF_wrt_lambda(D_norm, L, normalized)
+    train_evaluate_logreg(D_norm, L)
     
-    #svm.plot_linear_minDCF_wrt_C(D_norm, L, gaussianize)
-    #svm.plot_quadratic_minDCF_wrt_C(D_norm, L, gaussianize)
-    #svm.plot_RBF_minDCF_wrt_C(D_norm, L, gaussianize=True)
+    svm.plot_linear_minDCF_wrt_C(D_norm, L, normalized)
+    svm.plot_quadratic_minDCF_wrt_C(D_norm, L, normalized)
+    svm.plot_RBF_minDCF_wrt_C(D_norm, L, normalized)
     train_evaluate_svm(D_norm,L)
-
     
-    #validate.two_bests_roc(D, L) #model selection
-    #perform_calibration(D_norm,L)
-    #validate_fusion(D_norm,L)
-    #eval.evaluation()
+    print("Calibration WITHOUT ZSCORE NORMALIZATION")
+    perform_calibration(D,L)
+    
+    
+    print("Calibration WITH ZSCORE NORMALIZATION")
+    perform_calibration(D_norm,L)
+    
+    print("Fusion WITHOUT ZSCORE NORMALIZATION")
+    validate_fusion(D,L)
 
-def plot(DTR, LTR, gaussianize):
+    print("Fusion WITH ZSCORE NORMALIZATION")
+    validate_fusion(D_norm,L)
+    
+    eval.evaluation()
+
+def plot(DTR, LTR, normalized):
     #save histograms of the distribution of all the features in '../Images' folder. E
     util.plot_fraction_explained_variance_pca(DTR, LTR)
-    #util.plot_histograms(DTR, LTR,gaussianize)
-    #util.plot_scatters(DTR, LTR,gaussianize)
-    #util.heatmap_generator(DTR, LTR, "correlation_heatmap")
+    util.plot_histograms(DTR, LTR,normalized)
+    util.plot_scatters(DTR, LTR,normalized)
+    util.heatmap_generator(DTR, LTR, "correlation_heatmap")
 
 
 

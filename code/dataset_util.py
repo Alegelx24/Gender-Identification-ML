@@ -1,10 +1,5 @@
 import numpy
-import pylab
-import matplotlib
 import matplotlib.pyplot as plt
-import scipy.stats as statist
-
-
 
 def mcol(v):
     return v.reshape((v.size, 1))
@@ -156,7 +151,7 @@ def plot_histograms(D, L, gaussianize):
         else:
             plt.savefig('./images/DatasetAnalysis/hist/histogram_beforeGaussianization_zscore_%d.png' % dIdx)
 
-    #plt.show()
+        plt.show()
     
 def plot_scatters(D, L, gaussianize):
     
@@ -192,7 +187,7 @@ def plot_scatters(D, L, gaussianize):
             plt.legend()
             plt.tight_layout() # Use with non-default font size to keep axis label inside the figure
             plt.savefig('./images/DatasetAnalysis/scatter/scatter_%d_%d.png' % (dIdx1, dIdx2))
-        #plt.show()
+            plt.show()
         
 def heatmap_generator(D, L, filename):
     colors = ['YlOrBr', 'PuBuGn', 'RdPu']
@@ -230,11 +225,6 @@ def heatmap_generator(D, L, filename):
         fig.tight_layout()
         
         plt.savefig("./images/DatasetAnalysis/heatmaps/heatmap_%s.png" % (filename + "_" + titles[k]))
-
-    
-    
-    
-    
 
 def pca(m, D):
     mu = compute_mean(D)
