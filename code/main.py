@@ -198,6 +198,30 @@ def train_evaluate_svm(D,L):
         if m < 12:
             D = util.pca(m, D)[0]
             print ("##########################################")
+            print ("############ SVM LINEAR with m = %d #######" %m)
+            print ("##########################################")
+        else:
+            print ("##########################################")
+            print ("######## SVM LINEAR with NO PCA ##########")
+            print ("##########################################")
+            
+        Options['C']=1
+        for piT in [0.1, 0.5, 0.9]:
+            for pi in [0.1, 0.5, 0.9]:
+                Options['piT']=piT
+                Options['rebalance']=True
+                min_dcf_kfold = validate.kfold(D, L, k, pi, svm.compute_score_linear, Options)[0]
+                print("Linear SVM -piT = %f -C=%f - pi = %f - minDCF = %f" %(piT,Options['C'], pi,min_dcf_kfold))
+                
+        Options['rebalance']=False
+        for pi in [0.1, 0.5, 0.9]:
+                min_dcf_kfold = validate.kfold(D, L, k, pi, svm.compute_score_linear, Options)[0]
+                print("Linear SVM without rebalancing -C=%f - pi = %f - minDCF = %f" %(Options['C'], pi,min_dcf_kfold)) 
+          
+
+        if m < 12:
+            D = util.pca(m, D)[0]
+            print ("##########################################")
             print ("########## SVM QUADRATIC with m = %d ######" %m)
             print ("##########################################")
         else:
