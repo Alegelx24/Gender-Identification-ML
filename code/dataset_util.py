@@ -1,5 +1,6 @@
 import numpy
 import matplotlib.pyplot as plt
+import scipy as sp
 
 def mcol(v):
     return v.reshape((v.size, 1))
@@ -237,5 +238,103 @@ def pca(m, D):
     return DProjected, P
 
 
+
+def vrow(col):
+    return col.reshape((1,col.size))
+
+def vcol(row):
+    return row.reshape((row.size,1))
+
+def createCenteredSWc(DC):      #for already centered data 
+    C = 0
+    for i in range(DC.shape[1]):
+        C = C + numpy.dot(DC[:,i:i+1],(DC[:,i:i+1]).T)
+    C = C/float(DC.shape[1])
+    return C
+
+
+def centerData(D):
+    mu = D.mean(1)
+    DC = D - vcol(mu)    #broadcasting applied
+    return DC
+
+
+
+def createSBSW(D,L):
+    D0 = D[:,L==0]      
+    D1 = D[:,L==1]
+
+    DC0 = centerData(D0)
+    DC1 = centerData(D1)
+
+    SW0 = createCenteredSWc(DC0)
+    SW1 = createCenteredSWc(DC1)
+   
+    centeredSamples = [DC0,DC1] 
+    allSWc = [SW0,SW1]
     
+    samples = [D0,D1]
+    mu = vcol(D.mean(1))
+
+    SB=0
+    SW=0
+
+    for x in range(2):
+        m = vcol(samples[x].mean(1))
+        SW = SW + (allSWc[x]*centeredSamples[x].shape[1]) 
+        SB = SB + samples[x].shape[1] * numpy.dot((m-mu),(m-mu).T)                                                                 
+        
+    SB = SB/(float)(D.shape[1])
+    SW = SW / (float)(D.shape[1])
+
+    return SB,SW
+
+
+def LDA1(D,L,m):
+
+    SB, SW = createSBSW(D,L)        
+    s,U = sp.linalg.eigh(SB,SW)  
+    W = U[:,::-1][:,0:m]        
+
+    return W
+
+
+
+
+def LDA_impl(D,L,m) :
+    W1 = LDA1(D,L,m)
+    DW = numpy.dot(W1.T,D)     #D projection on sub-space W1
+    return DW,W1
+
+
+
     
+
+# 
+    # DTEW = np.dot(W.T,DTE)
+    #plotCross(DW,LTR,m)
+    #plotSingle(DW, LTR, m)
+
+
+    
+# m is the number of dimensions
+def plotLDA(D, L,m):
+
+
+    DW,W = LDA_impl(D,L,m)
+    D=DW
+
+    D0 = D[:, L == 0]
+    D1 = D[:, L == 1]
+    for i in range(m):
+            plt.figure()
+            plt.xlabel("Feature " + str(i))
+            plt.ylabel("Number of elements")
+            plt.hist(D0[i, :],bins = 60, density = True, alpha = 0.4, label = 'Male' , color= 'blue', linewidth=1.0,
+                     edgecolor='black')
+            plt.hist(D1[i, :],bins = 60, density = True, alpha = 0.5, label = 'Female', color= 'pink', linewidth=1.0,
+                     edgecolor='black')
+            plt.legend()
+            plt.tight_layout()
+            plt.savefig("./images/DatasetAnalysis/LDA_plot.png" )
+            plt.show()

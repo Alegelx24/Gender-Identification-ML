@@ -19,6 +19,7 @@ def main():
 
     plot(D, L, normalized) 
 
+
     #TRAINING
     print("VALIDATION WITHOUT ZSCORE NORMALIZATION")
 
@@ -66,10 +67,14 @@ def main():
     eval.evaluation()
 
 def plot(DTR, LTR, normalized):
+    util.plotLDA(DTR, LTR,2)
+    print("LDA PLOT DOOONE")
+    '''
     util.plot_fraction_explained_variance_pca(DTR, LTR)
     util.plot_histograms(DTR, LTR,normalized)
     util.plot_scatters(DTR, LTR,normalized)
     util.heatmap_generator(DTR, LTR, "correlation_heatmap")
+    '''
 
 def train_evaluate_gaussian_models(D,L):
     Options={ }  
