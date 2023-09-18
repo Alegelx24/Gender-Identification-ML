@@ -16,35 +16,31 @@ def perform_evaluation():
     DTR_norm,DEV_norm= util.perform_ZNormalization(DTR, DEV, normalize_ev = True) #Normalize evaluation samples using mean and covariance from training set
     
     print('-----------EVALUATION WITH RAW FEATURES STARTED...-----------------')
-    gaussianize=False
-    #evaluation_MVG(DTR, LTR, DEV, LEV)
-    #evaluation_log_reg(DTR, LTR, DEV, LEV, gaussianize)
-    evaluation_SVM(DTR, LTR, DEV, LEV, gaussianize)
-    #evaluation_gmm(DTR, DTR_norm, LTR, DEV, DEV_norm, LEV, False) #last field is normalization
-
+    normalized=False
+    evaluation_MVG_model(DTR, LTR, DEV, LEV)
+    evaluation_log_reg_models(DTR, LTR, DEV, LEV, normalized)
+    evaluation_SVM_models(DTR, LTR, DEV, LEV, normalized)
+    evaluation_GMM_models(DTR, DTR_norm, LTR, DEV, DEV_norm, LEV, normalized)
     
     print('-----------EVALUATION ON ZSCORE FEATURES STARTED...-----------------')
-    #evaluation_MVG(DTR_norm, LTR, DEV_norm, LEV)
-    #evaluation_log_reg(DTR_norm, LTR, DEV_norm, LEV, gaussianize=True)
-    #evaluation_SVM(DTR_norm, LTR, DEV_norm, LEV,gaussianize=True )
-    #evaluation_gmm(DTR, DTR_norm, LTR, DEV, DEV_norm, LEV, True)
-    
+    normalized=True
+    evaluation_MVG_model(DTR_norm, LTR, DEV_norm, LEV)
+    evaluation_log_reg_models(DTR_norm, LTR, DEV_norm, LEV, normalized=True)
+    evaluation_SVM_models(DTR_norm, LTR, DEV_norm, LEV,normalized=True )
+    evaluation_GMM_models(DTR, DTR_norm, LTR, DEV, DEV_norm, LEV, True)
 
     print('-----------EVALUATION WITH zscore FEATURES and CALIBRATION STARTED...-----------------')
+    calibration.min_vs_act(DTR_norm,LTR, DEV=DEV_norm, LEV=LEV, evaluation=True)
+    calibration.optimal_threshold(DTR_norm, LTR, DEV=DEV_norm, LEV=LEV, evaluation=True)
+    calibration.validate_score_trasformation(DTR_norm,LTR, DEV=DEV_norm, LEV=LEV, evaluation=True)
+    calibration.min_vs_act_after_calibration(DTR_norm, LTR, DEV=DEV_norm, LEV=LEV, evaluation=True)
     
-    #calibration.min_vs_act(DTR_norm,LTR, DEV=DEV_norm, LEV=LEV, evaluation=True)
-    #calibration.optimal_threshold(DTR_norm, LTR, DEV=DEV_norm, LEV=LEV, evaluation=True)
-    #calibration.validate_score_trasformation(DTR_norm,LTR, DEV=DEV_norm, LEV=LEV, evaluation=True)
-    #calibration.min_vs_act_after_calibration(DTR_norm, LTR, DEV=DEV_norm, LEV=LEV, evaluation=True)
     print('-----------EVALUATION WITH zscore FEATURES and FUSION STARTED...-----------------')
-
-    
-    #evaluation_fusion(DTR_norm, LTR, DEV_norm, LEV)
-
-    
+    evaluation_fusion_models(DTR_norm, LTR, DEV_norm, LEV)
 
 
-def evaluation_MVG(DTR, LTR, DEV, LEV):
+
+def evaluation_MVG_model(DTR, LTR, DEV, LEV):
     DTR_copy = DTR
     DEV_copy = DEV
     Options={ }  
@@ -53,13 +49,10 @@ def evaluation_MVG(DTR, LTR, DEV, LEV):
         if m <12:
             DTR, P = util.pca(m, DTR)
             DEV = numpy.dot(P.T, DEV)
-            print ("##########################################")
-            print ("##### Gaussian classifiers with m = %d ####" %m)
-            print ("##########################################")
+            print ("------ Gaussian classifiers with PCA(m = %d) ------" %m)
+
         else:
-            print ("##########################################")
-            print ("#### Gaussian classifiers with NO PCA ####")
-            print ("##########################################")
+            print ("------ Gaussian classifiers with NO PCA ------")
             
         #Train models on all the training data and compute scores for the evaluation dataset
         scores_full = gauss.compute_score_full(DEV,DTR,LTR,Options) 
@@ -67,27 +60,26 @@ def evaluation_MVG(DTR, LTR, DEV, LEV):
         scores_full_tied = gauss.compute_score_tied_full(DEV,DTR,LTR,Options) 
         scores_tied_diag = gauss.compute_score_tied_diagonal(DEV,DTR,LTR,Options) 
         for pi in [0.1, 0.5, 0.9]:
-            #compute min DCF on evaluation set
             min_DCF = validate.compute_min_DCF(scores_full, LEV, pi, 1, 1)
-            print("full covariance gaussian raw features no PCA - pi = %f --> min_DCF= %f" %(pi,min_DCF))
+            print("Full covariance gaussian raw features without PCA - pi = %f --> min_DCF= %f" %(pi,min_DCF))
             
             min_DCF = validate.compute_min_DCF(scores_diag, LEV, pi, 1, 1)
-            print("diag covariance gaussian raw features no PCA - pi = %f --> min_DCF= %f" %(pi,min_DCF))
+            print("Diagonal covariance gaussian raw features without PCA - pi = %f --> min_DCF= %f" %(pi,min_DCF))
             
             min_DCF = validate.compute_min_DCF(scores_full_tied, LEV, pi, 1, 1)
-            print("full-tied covariance gaussian raw features no PCA - pi = %f --> min_DCF= %f" %(pi,min_DCF))
+            print("Full-tied covariance gaussian raw features without PCA - pi = %f --> min_DCF= %f" %(pi,min_DCF))
             
             min_DCF = validate.compute_min_DCF(scores_tied_diag, LEV, pi, 1, 1)
-            print("tied-diag covariance gaussian raw features no PCA - pi = %f --> min_DCF= %f" %(pi,min_DCF))
+            print("Tied-diagonal covariance gaussian raw features without PCA - pi = %f --> min_DCF= %f" %(pi,min_DCF))
         
         m=m-1
         DEV = DEV_copy
         DTR = DTR_copy
         
 
-def evaluation_log_reg(DTR, LTR, DEV, LEV, gaussianize):
-    #log_reg.plot_minDCF_wrt_lamda(DTR,LTR, gaussianize, DEV=DEV, LEV=LEV, evaluation=True)
-    log_reg.quadratic_plot_minDCF_wrt_lambda(DTR, LTR, gaussianize, DEV=DEV, LEV=LEV, evaluation=True)
+def evaluation_log_reg_models(DTR, LTR, DEV, LEV, normalized):
+    log_reg.plot_minDCF_wrt_lamda(DTR,LTR, normalized, DEV=DEV, LEV=LEV, evaluation=True)
+    log_reg.quadratic_plot_minDCF_wrt_lambda(DTR, LTR, normalized, DEV=DEV, LEV=LEV, evaluation=True)
     DTR_copy = DTR
     DEV_copy = DEV
     m = 12
@@ -95,13 +87,9 @@ def evaluation_log_reg(DTR, LTR, DEV, LEV, gaussianize):
         if m < 12:
             DTR, P = util.pca(m, DTR)
             DEV = numpy.dot(P.T, DEV)
-            print ("##########################################")
-            print ("##### Logistic Regression with m = %d ####" %m)
-            print ("##########################################")
+            print ("------ Linear Logistic regression with PCA(m = %d) -------" %m)
         else:
-            print ("##########################################")
-            print ("#### Logistic Regression with NO PCA ####")
-            print ("##########################################")
+            print ("------ Linear Logistic regression with NO PCA ------")
             
         Options={
         'lambdaa' : 1e-5,
@@ -115,7 +103,7 @@ def evaluation_log_reg(DTR, LTR, DEV, LEV, gaussianize):
             scores_quadratic_log_reg = log_reg.compute_score_quadratic(DEV, DTR, LTR, Options)
             for pi in [0.1, 0.5, 0.9]:
                 min_DCF = validate.compute_min_DCF(scores_linear_log_reg, LEV, pi, 1, 1)
-                print("linear log reg -lamda = 10^-5 -piT=%f - pi = %f --> min_DCF= %f" %(piT, pi,min_DCF))
+                print("Linear log reg -lamda = 10^-5 -piT=%f - pi = %f --> min_DCF= %f" %(piT, pi,min_DCF))
                 min_DCF = validate.compute_min_DCF(scores_quadratic_log_reg, LEV, pi, 1, 1)
                 print("Quadratic log reg -lamda = 10^-3 -piT=%f - pi = %f --> min_DCF= %f" %(piT, pi,min_DCF))
         
@@ -124,10 +112,10 @@ def evaluation_log_reg(DTR, LTR, DEV, LEV, gaussianize):
         DTR = DTR_copy
         
         
-def evaluation_SVM(DTR, LTR, DEV, LEV, gaussianize):
-    svm.plot_linear_minDCF_wrt_C(DTR,LTR,gaussianize, DEV=DEV, LEV=LEV, evaluation=True)
-    #svm.plot_quadratic_minDCF_wrt_C(DTR,LTR,gaussianize, DEV=DEV, LEV=LEV, evaluation=True)
-    #svm.plot_RBF_minDCF_wrt_C(DTR,LTR,gaussianize, DEV=DEV, LEV=LEV, evaluation=True)
+def evaluation_SVM_models(DTR, LTR, DEV, LEV, normalized):
+    svm.plot_linear_minDCF_wrt_C(DTR,LTR,normalized, DEV=DEV, LEV=LEV, evaluation=True)
+    svm.plot_quadratic_minDCF_wrt_C(DTR,LTR,normalized, DEV=DEV, LEV=LEV, evaluation=True)
+    svm.plot_RBF_minDCF_wrt_C(DTR,LTR,normalized, DEV=DEV, LEV=LEV, evaluation=True)
     Options={
         'C' : None,
         'piT': None,
@@ -141,13 +129,9 @@ def evaluation_SVM(DTR, LTR, DEV, LEV, gaussianize):
         if m < 12:
             DTR, P = util.pca(m, DTR)
             DEV = numpy.dot(P.T, DEV)
-            print ("##########################################")
-            print ("##### SVM with m = %d ####" %m)
-            print ("##########################################")
+            print ("------- SVM LINEAR with PCA(m = %d) -------" %m)
         else:
-            print ("##########################################")
-            print ("#### SVM with NO PCA ####")
-            print ("##########################################")
+            print ("------ SVM LINEAR with NO PCA -------")
             
         for piT in [0.1, 0.5, 0.9]:
             Options['C']=1
@@ -156,25 +140,21 @@ def evaluation_SVM(DTR, LTR, DEV, LEV, gaussianize):
             scores_linear_svm = svm.compute_score_SVM_linear(DEV, DTR, LTR, Options)
             for pi in [0.1, 0.5, 0.9]:
                 min_DCF = validate.compute_min_DCF(scores_linear_svm, LEV, pi, 1, 1)
-                print("linear SVM -C =1 -piT=%f - pi = %f --> min_DCF= %f" %(piT, pi,min_DCF))
+                print("Linear SVM -C =1 -piT=%f - pi = %f --> min_DCF= %f" %(piT, pi,min_DCF))
         
         Options['C']=1
         Options['rebalance']=False
         scores_linear_svm = svm.compute_score_SVM_linear(DEV, DTR, LTR, Options)
         for pi in [0.1, 0.5, 0.9]:
             min_DCF = validate.compute_min_DCF(scores_linear_svm, LEV, pi, 1, 1)
-            print("linear SVM -C =1 -No rebalancing - pi = %f --> min_DCF= %f" %(pi,min_DCF))
+            print("Linear SVM -C =1 -No rebalancing - pi = %f --> min_DCF= %f" %(pi,min_DCF))
             
         if m < 12:
             DTR, P = util.pca(m, DTR)
             DEV = numpy.dot(P.T, DEV)
-            print ("##########################################")
-            print ("##### SVM Quadratic with m = %d ####" %m)
-            print ("##########################################")
+            print ("------ SVM QUADRATIC with PCA(m = %d) ------" %m)
         else:
-            print ("##########################################")
-            print ("#### SVM Quadratic with NO PCA ####")
-            print ("##########################################")
+            print ("------ SVM QUADRATIC with NO PCA ------")
             
         for piT in [0.1, 0.5, 0.9]:
             Options['C']=1e-3
@@ -183,25 +163,22 @@ def evaluation_SVM(DTR, LTR, DEV, LEV, gaussianize):
             scores_quadratic_svm = svm.compute_score_SVM_quadratic(DEV, DTR, LTR, Options)
             for pi in [0.1, 0.5, 0.9]:
                 min_DCF = validate.compute_min_DCF(scores_quadratic_svm, LEV, pi, 1, 1)
-                print("linear SVM -C =1e-3 -piT=%f - pi = %f --> min_DCF= %f" %(piT, pi,min_DCF))
+                print("Quadratic SVM -C =1e-3 -piT=%f - pi = %f --> min_DCF= %f" %(piT, pi,min_DCF))
         
         Options['C']=1e-3
         Options['rebalance']=False
         scores_quadratic_svm = svm.compute_score_SVM_quadratic(DEV, DTR, LTR, Options)
         for pi in [0.1, 0.5, 0.9]:
             min_DCF = validate.compute_min_DCF(scores_quadratic_svm, LEV, pi, 1, 1)
-            print("linear SVM -C =1e-3 -No rebalancing - pi = %f --> min_DCF= %f" %(pi,min_DCF))
+            print("Quadratic SVM -C =1e-3 -No rebalancing - pi = %f --> min_DCF= %f" %(pi,min_DCF))
             
         if m < 12:
             DTR, P = util.pca(m, DTR)
             DEV = numpy.dot(P.T, DEV)
-            print ("##########################################")
-            print ("##### SVM RBF with m = %d ####" %m)
-            print ("##########################################")
+            print ("------ SVM RBF with PCA(m = %d) ------" %m)
+
         else:
-            print ("##########################################")
-            print ("#### SVM RBF with NO PCA ####")
-            print ("##########################################")
+            print ("------ SVM RBF with NO PCA ------")
             
         for piT in [0.1, 0.5, 0.9]:
             Options['C']=100
@@ -211,45 +188,40 @@ def evaluation_SVM(DTR, LTR, DEV, LEV, gaussianize):
             scores_rbf_svm = svm.compute_score_SVM_RBF(DEV, DTR, LTR, Options)
             for pi in [0.1, 0.5, 0.9]:
                 min_DCF = validate.compute_min_DCF(scores_rbf_svm, LEV, pi, 1, 1)
-                print("linear SVM -C =1 -piT=%f - pi = %f --> min_DCF= %f" %(piT, pi,min_DCF))
+                print("RBF SVM -C =1 -piT=%f - pi = %f --> min_DCF= %f" %(piT, pi,min_DCF))
         
         Options['C']=100
         Options['rebalance']=False
         scores_rbf_svm = svm.compute_score_SVM_RBF (DEV, DTR, LTR, Options)
         for pi in [0.1, 0.5, 0.9]:
             min_DCF = validate.compute_min_DCF(scores_rbf_svm, LEV, pi, 1, 1)
-            print("linear SVM -C =1 -No rebalancing - pi = %f --> min_DCF= %f" %(pi,min_DCF))    
+            print("RBF SVM -C =1 -No rebalancing - pi = %f --> min_DCF= %f" %(pi,min_DCF))    
         
         m=m-1
         DEV = DEV_copy
         DTR = DTR_copy
 
 
-def evaluation_gmm(DTR, DTR_norm, LTR, DEV, DEV_norm, LEV, gaussianize):
+def evaluation_GMM_models(DTR, DTR_norm, LTR, DEV, DEV_norm, LEV, normalized):
     gmm.plot_minDCF_wrt_components(DTR, DTR_norm, LTR, DEV=DEV, DEV_zscore=DEV_norm, LEV=LEV, evaluation=True  )
     DTR_copy = DTR
     DEV_copy = DEV
     Options={ 
         'Type':None,
-        'iterations':None #components will be 2^iterations
+        'iterations':None #components = 2^iterations
         }  
     m = 12
-    if gaussianize:
+    if normalized:
         DTR = DTR_norm
         DEV = DEV_norm
     while m>=9:
         if m < 12:
             DTR, P = util.pca(m, DTR)
             DEV = numpy.dot(P.T, DEV)
-            print ("##########################################")
-            print ("############# GMM with m = %d #############" %m)
-            print ("##########################################")
+            print ("------ GMM with PCA(m = %d) ------" %m)
         else:
-            print ("##########################################")
-            print ("############ GMM with NO PCA #############")
-            print ("##########################################")
+            print ("------ GMM with NO PCA ------")
             
-        #Train models on all the training data and compute scores for the evaluation dataset
         Options['Type']='full'
         Options['iterations']= 2
         scores_full = gmm.compute_score(DEV,DTR,LTR,Options) 
@@ -263,25 +235,25 @@ def evaluation_gmm(DTR, DTR_norm, LTR, DEV, DEV_norm, LEV, gaussianize):
         Options['iterations']= 4
         scores_tied_diag = gmm.compute_score(DEV,DTR,LTR,Options) 
         for pi in [0.1, 0.5, 0.9]:
-            #compute min DCF on evaluation set
+
             min_DCF = validate.compute_min_DCF(scores_full, LEV, pi, 1, 1)
-            print(" gmm full -components=4 - pi = %f --> minDCF = %f" %( pi,min_DCF))
+            print(" GMM full -components=4 - pi = %f --> minDCF = %f" %( pi,min_DCF))
 
             min_DCF = validate.compute_min_DCF(scores_diag, LEV, pi, 1, 1)
-            print(" gmm diag -components=4 - pi = %f --> minDCF = %f" %( pi,min_DCF))
+            print(" GMM diag -components=4 - pi = %f --> minDCF = %f" %( pi,min_DCF))
             
             min_DCF = validate.compute_min_DCF(scores_full_tied, LEV, pi, 1, 1)
-            print(" gmm full-tied -components=4 - pi = %f --> minDCF = %f" %( pi,min_DCF))
+            print(" GMM full-tied -components=4 - pi = %f --> minDCF = %f" %( pi,min_DCF))
             
             min_DCF = validate.compute_min_DCF(scores_tied_diag, LEV, pi, 1, 1)
-            print(" gmm diag-tied -components=16 - pi = %f --> minDCF = %f" %( pi,min_DCF))        
+            print(" GMM diag-tied -components=16 - pi = %f --> minDCF = %f" %( pi,min_DCF))        
     
         m=m-1
         DEV = DEV_copy
         DTR = DTR_copy
 
 
-def evaluation_fusion(DTR, LTR, DEV, LEV):
+def evaluation_fusion_models(DTR, LTR, DEV, LEV):
     '''#gmm  
         Options={
             'Type':'full-tied',
@@ -319,10 +291,10 @@ def evaluation_fusion(DTR, LTR, DEV, LEV):
         act_DCF = validate.compute_act_DCF(fused_scores, LEV, pi, 1, 1)
         print("Fusion - pi = %f --> act_DCF= %f" %(pi,act_DCF))
 
-    bayes_plot_with_fusion_evaluation(DTR, LTR, DEV, LEV)
+    bayes_error_plot_with_fusion_evaluation(DTR, LTR, DEV, LEV)
     
     
-def bayes_plot_with_fusion_evaluation(DTR, LTR, DEV, LEV):
+def bayes_error_plot_with_fusion_evaluation(DTR, LTR, DEV, LEV):
     pi_array = numpy.linspace(-4, 4, 20)
     
     '''
@@ -337,7 +309,6 @@ def bayes_plot_with_fusion_evaluation(DTR, LTR, DEV, LEV):
     calibrated_scores1 = calibration.score_trasformation(scores_TR1, LTR1, scores1_ev, 0.5)
     y_min1, y_act1= validate.bayes_error(pi_array, calibrated_scores1, LEV)
     '''
-
     Options={
         'C' : 10,
         'piT': 0.9,
@@ -349,8 +320,6 @@ def bayes_plot_with_fusion_evaluation(DTR, LTR, DEV, LEV):
     scores1_ev = svm.compute_score_SVM_RBF(DEV, DTR, LTR, Options)
     calibrated_scores1 = calibration.compute_score_trasformation(scores_TR1, LTR1, scores1_ev, 0.5)
     y_min1, y_act1= validate.bayes_error(pi_array, calibrated_scores1, LEV)
-    
-
     
     #linear Lr
     Options={
@@ -381,7 +350,7 @@ def bayes_plot_with_fusion_evaluation(DTR, LTR, DEV, LEV):
     plt.ylim(bottom=0)
     plt.xlabel("application")
     plt.ylabel("cost")
-    plt.tight_layout() # Use with non-default font size to keep axis label inside the figure
+    plt.tight_layout() 
     plt.savefig("./images/eval/actVSmin_fusion_evaluation_svmRBF+LR.png")
     plt.show()
     
