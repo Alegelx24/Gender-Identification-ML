@@ -9,11 +9,11 @@ import score_calibration as calibration
 import matplotlib.pyplot as plt
 import model_fusion as fusion
 
-def evaluation():
+def perform_evaluation():
 
-    DTR,LTR = util.load_training_set('./Data/Train.txt')
-    DEV, LEV = util.load_evaluation_set('./Data/Test.txt')
-    DTR_norm,DEV_norm= util.scale_ZNormalization(DTR, DEV, normalize_ev = True) #Normalize evaluation samples using mean and covariance from training set
+    DTR,LTR = util.load_training_dataset('./Data/Train.txt')
+    DEV, LEV = util.load_evaluation_dataset('./Data/Test.txt')
+    DTR_norm,DEV_norm= util.perform_ZNormalization(DTR, DEV, normalize_ev = True) #Normalize evaluation samples using mean and covariance from training set
     
     print('-----------EVALUATION WITH RAW FEATURES STARTED...-----------------')
     gaussianize=False
@@ -63,9 +63,9 @@ def evaluation_MVG(DTR, LTR, DEV, LEV):
             
         #Train models on all the training data and compute scores for the evaluation dataset
         scores_full = gauss.compute_score_full(DEV,DTR,LTR,Options) 
-        scores_diag = gauss.compute_score_diag(DEV,DTR,LTR,Options) 
+        scores_diag = gauss.compute_score_diagonal(DEV,DTR,LTR,Options) 
         scores_full_tied = gauss.compute_score_tied_full(DEV,DTR,LTR,Options) 
-        scores_tied_diag = gauss.compute_score_tied_diag(DEV,DTR,LTR,Options) 
+        scores_tied_diag = gauss.compute_score_tied_diagonal(DEV,DTR,LTR,Options) 
         for pi in [0.1, 0.5, 0.9]:
             #compute min DCF on evaluation set
             min_DCF = validate.compute_min_DCF(scores_full, LEV, pi, 1, 1)

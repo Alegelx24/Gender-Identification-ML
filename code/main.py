@@ -11,9 +11,9 @@ import evaluation as eval
 k=5 #parameter K-fold
 
 def main():
-    D,L = util.load_training_set('./data/Train.txt')
+    D,L = util.load_training_dataset('./data/Train.txt')
     D_centered=util.center_dataset(D)[0]
-    D_norm= util.scale_ZNormalization(D)[0]
+    D_norm= util.perform_ZNormalization(D)[0]
         
     normalized= False 
 
@@ -23,33 +23,33 @@ def main():
     #TRAINING
     print("VALIDATION WITHOUT ZSCORE NORMALIZATION")
 
-    train_evaluate_gaussian_models(D, L)
+    train_gaussian_models(D, L)
    
-    logreg.plot_minDCF_wrt_lamda(D, L, normalized=False)
+    logreg.plot_minDCF_wrt_lambda(D, L, normalized=False)
     logreg.quadratic_plot_minDCF_wrt_lambda(D, L, normalized=False)
-    train_evaluate_logreg(D, L)
+    train_logreg(D, L)
     
     svm.plot_linear_minDCF_wrt_C(D, L, normalized)
     svm.plot_quadratic_minDCF_wrt_C(D, L, normalized)
     svm.plot_RBF_minDCF_wrt_C(D, L, normalized)
-    train_evaluate_svm(D,L)
+    train_svm(D,L)
 
     gmm.plot_minDCF_wrt_components(D, D_norm, L)
-    train_evaluate_gmm(D, L)
+    train_gmm(D, L)
       
     print("VALIDATION WITH ZSCORE NORMALIZATION")
     normalized= True 
 
-    train_evaluate_gaussian_models_zscore(D_norm, L)
+    train_gaussian_models_zscore(D_norm, L)
    
-    logreg.plot_minDCF_wrt_lamda(D_norm, L, normalized)
+    logreg.plot_minDCF_wrt_lambda(D_norm, L, normalized)
     logreg.quadratic_plot_minDCF_wrt_lambda(D_norm, L, normalized)
-    train_evaluate_logreg(D_norm, L)
+    train_logreg(D_norm, L)
     
     svm.plot_linear_minDCF_wrt_C(D_norm, L, normalized)
     svm.plot_quadratic_minDCF_wrt_C(D_norm, L, normalized)
     svm.plot_RBF_minDCF_wrt_C(D_norm, L, normalized)
-    train_evaluate_svm(D_norm,L)
+    train_svm(D_norm,L)
     
     print("Calibration WITHOUT ZSCORE NORMALIZATION")
     perform_calibration(D,L)
@@ -64,20 +64,16 @@ def main():
     print("Fusion WITH ZSCORE NORMALIZATION")
     validate_fusion(D_norm,L)
     
-    eval.evaluation()
+    eval.perform_evaluation()
 
 def plot(DTR, LTR, normalized):
-    util.plotLDA(DTR, LTR,2)
-    print("LDA PLOT DOOONE")
-    '''
     util.plot_fraction_explained_variance_pca(DTR, LTR)
     util.plot_histograms(DTR, LTR,normalized)
     util.plot_scatters(DTR, LTR,normalized)
     util.heatmap_generator(DTR, LTR, "correlation_heatmap")
-    '''
-
-def train_evaluate_gaussian_models(D,L):
-    Options={ }  
+    util.plotLDA(DTR, LTR,2)
+    
+def train_gaussian_models(D,L):
     D_copy = D
     m = 12
     while m>=7:
@@ -88,20 +84,20 @@ def train_evaluate_gaussian_models(D,L):
             print ("------ Gaussian classifiers with NO PCA ------")
         
         for pi in [0.1, 0.5, 0.9]:
-            min_dcf_full = validate.kfold(D, L, k, pi, gaussian.compute_score_full, Options)[0]
+            min_dcf_full = validate.kfold(D, L, k, pi, gaussian.compute_score_full )[0]
             print(" Full-Cov MVG - pi = %f -> minDCF = %f" %(pi,min_dcf_full))
-            min_dcf_diag = validate.kfold(D, L, k, pi, gaussian.compute_score_diag, Options)[0]
+            min_dcf_diag = validate.kfold(D, L, k, pi, gaussian.compute_score_diagonal )[0]
             print(" Diag-cov MVG - pi = %f -> minDCF = %f" %(pi,min_dcf_diag))
-            min_dcf_tied_full = validate.kfold(D, L, k, pi, gaussian.compute_score_tied_full, Options)[0]
+            min_dcf_tied_full = validate.kfold(D, L, k, pi, gaussian.compute_score_tied_full )[0]
             print(" Tied full-cov MVG - pi = %f  minDCF = %f" %(pi,min_dcf_tied_full))
-            min_dcf_tied_diag = validate.kfold(D, L, k, pi, gaussian.compute_score_tied_diag, Options)[0]
+            min_dcf_tied_diag = validate.kfold(D, L, k, pi, gaussian.compute_score_tied_diagonal )[0]
             print(" Tied diag-cov MVG - pi = %f  minDCF = %f" %(pi,min_dcf_tied_diag))
 
         m=m-1
         D=D_copy 
 
 
-def train_evaluate_gaussian_models_zscore(D,L):
+def train_gaussian_models_zscore(D,L):
     Options={ }  
     D_copy = D
     m = 12
@@ -115,19 +111,18 @@ def train_evaluate_gaussian_models_zscore(D,L):
         for pi in [0.1, 0.5, 0.9]:
             min_dcf_full = validate.kfold(D, L, k, pi, gaussian.compute_score_full, Options)[0]
             print(" Full-Cov - pi = %f -> minDCF = %f" %(pi,min_dcf_full))
-            min_dcf_diag = validate.kfold(D, L, k, pi, gaussian.compute_score_diag, Options)[0]
+            min_dcf_diag = validate.kfold(D, L, k, pi, gaussian.compute_score_diagonal, Options)[0]
             print(" Diag-cov - pi = %f -> minDCF = %f" %(pi,min_dcf_diag))
             min_dcf_tied_full = validate.kfold(D, L, k, pi, gaussian.compute_score_tied_full, Options)[0]
             print(" Tied full-cov - pi = %f  minDCF = %f" %(pi,min_dcf_tied_full))
-            min_dcf_tied_diag = validate.kfold(D, L, k, pi, gaussian.compute_score_tied_diag, Options)[0]
+            min_dcf_tied_diag = validate.kfold(D, L, k, pi, gaussian.compute_score_tied_diagonal, Options)[0]
             print(" Tied diag-cov - pi = %f  minDCF = %f" %(pi,min_dcf_tied_diag))
 
         m=m-1
         D=D_copy 
-
     
         
-def train_evaluate_logreg(D,L):
+def train_logreg(D,L):
     D_copy = D
     Options={
     'lambdaa' : None,
@@ -167,7 +162,7 @@ def train_evaluate_logreg(D,L):
     
 
 
-def train_evaluate_svm(D,L):
+def train_svm(D,L):
     D_copy = D
     Options={
         'C' : None,
@@ -190,7 +185,7 @@ def train_evaluate_svm(D,L):
                 Options['piT']=piT
                 Options['rebalance']=True
                 min_dcf_kfold = validate.kfold(D, L, k, pi, svm.compute_score_linear, Options)[0]
-                print("Linear SVM -piT = %f -C=%f - pi = %f - minDCF = %f" %(piT,Options['C'], pi,min_dcf_kfold))
+                print("Linear SVM with -piT = %f -C=%f - pi = %f - minDCF = %f" %(piT,Options['C'], pi,min_dcf_kfold))
                 
         Options['rebalance']=False
         for pi in [0.1, 0.5, 0.9]:
@@ -209,7 +204,7 @@ def train_evaluate_svm(D,L):
                 Options['piT']=piT
                 Options['rebalance']=True
                 min_dcf_kfold = validate.kfold(D, L, k, pi, svm.compute_score_quadratic, Options)[0]
-                print("Quadratric SVM -piT = %f -C=%f - pi = %f - minDCF = %f" %(piT,Options['C'], pi,min_dcf_kfold))
+                print("Quadratric SVM with -piT = %f -C=%f - pi = %f - minDCF = %f" %(piT,Options['C'], pi,min_dcf_kfold))
                 
         Options['rebalance']=False
         Options['C']=1e-1
@@ -230,7 +225,7 @@ def train_evaluate_svm(D,L):
                 Options['gamma']=0.1
                 Options['rebalance']=True
                 min_dcf_kfold = validate.kfold(D, L, k, pi, svm.compute_score_RBF, Options)[0]
-                print("RBF SVM -piT = %f -gamma =%f -C=%f - pi = %f -> minDCF = %f" %(piT, Options['gamma'], Options['C'], pi,min_dcf_kfold))      
+                print("RBF SVM with -piT = %f -gamma =%f -C=%f - pi = %f -> minDCF = %f" %(piT, Options['gamma'], Options['C'], pi,min_dcf_kfold))      
             
         Options['rebalance']=False
         for pi in [0.1, 0.5, 0.9]:
@@ -243,7 +238,7 @@ def train_evaluate_svm(D,L):
 
 
         
-def train_evaluate_gmm(D,L):
+def train_gmm(D,L):
     D_copy = D
     Options={ 
         'Type':None,

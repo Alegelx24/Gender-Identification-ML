@@ -3,26 +3,27 @@ import scipy.special
 import validate
 import matplotlib.pyplot as plt
 
-def mrow(x):
-    return numpy.reshape(x, (1,x.shape[0]))
-
-def mcol(x):
-    return numpy.reshape(x, (x.shape[0],1))
 
 
 def train_gmm(DTR,LTR, iterations_LBG, Type):
     D0 = DTR[:, LTR==0]
     D1 = DTR[:, LTR==1]
-    
-    gmm0 = LBG(D0, iterations_LBG, Type)
-    gmm1 = LBG(D1, iterations_LBG, Type)
+
+    gmm0 = LBG_init(D0, iterations_LBG, Type)
+    gmm1 = LBG_init(D1, iterations_LBG, Type)
     return gmm0, gmm1
+
+def mrow(x):
+    return numpy.reshape(x, (1,x.shape[0]))
+
+def mcol(x):
+    return numpy.reshape(x, (x.shape[0],1))
     
 def compute_score(DTE,DTR,LTR, Options):
     if Options['iterations'] == None:
-        Options['iterations'] = 4
+       Options['iterations'] = 2
     if Options['Type'] == None:
-        Options['Type'] = 'full'
+       Options['Type'] = 'full'
         
     gmm0, gmm1 = train_gmm(DTR, LTR, Options['iterations'], Options['Type'])
     
@@ -30,7 +31,7 @@ def compute_score(DTE,DTR,LTR, Options):
     ll1 = GMM_ll_perSample(DTE, gmm1)
     return ll1-ll0
     
-def LBG(D, iterations, Type,alfa=0.1):
+def LBG_init(D, iterations, Type,alfa=0.1):
     start_mu = mcol(D.mean(1))
     start_sigma = numpy.cov(D)
         
@@ -39,11 +40,8 @@ def LBG(D, iterations, Type,alfa=0.1):
             gmm_double = []
             for g in gmm:
                 
-                #Split the components of each g-components of gmm adding and subtracting epsilon to the mean g[1]
-                #A good value for epsilon can be a displacement along the principal eigenvector of the covariance matrix 
                 U, s, Vh = numpy.linalg.svd(g[2])
                 d = U[:, 0:1] * s[0]**0.5 * alfa
-                #g[0]=sigma, g[1]=mu, g[2]=w
                 component1 = (g[0]/2, g[1]+d, g[2])
                 component2 = (g[0]/2, g[1]-d, g[2])
                 gmm_double.append(component1)
@@ -72,12 +70,11 @@ def logpng_GAU_ND_opt1 (X,mu,C):
      return numpy.array(Y).ravel()
 
 def GMM_ll_perSample(X, gmm):
-    #return an array where each element is the log-likelihood of each element of the X matrix
     G= len(gmm)
     N=X.shape[1]
     S=numpy.zeros((G,N))
     for g in range(G):
-        S[g, :] = logpng_GAU_ND_opt1(X, gmm[g][1], gmm[g][2]) + numpy.log(gmm[g][0]) #the second addend represents the prior for each gaussian
+        S[g, :] = logpng_GAU_ND_opt1(X, gmm[g][1], gmm[g][2]) + numpy.log(gmm[g][0]) # second addend is the prior for each gaussian
     return scipy.special.logsumexp(S,axis=0)
 
 def EM_full(X, gmm):
@@ -106,15 +103,13 @@ def EM_full(X, gmm):
                 w = Z/N
                 mu = mcol(F/Z)
                 sigma = S/Z - numpy.dot(mu, mu.T)
-                #constraint
+                #constraints
                 U, s, _ = numpy.linalg.svd(sigma)
                 s[s<psi] = psi
                 sigma = numpy.dot(U, mcol(s)*U.T)
                 
                 gmm_new.append((w, mu, sigma))
             gmm = gmm_new
-            #print(ll_new)
-        #print(ll_new-ll_old)
         return gmm
     
 def EM_diag(X, gmm):
@@ -143,7 +138,7 @@ def EM_diag(X, gmm):
             w = Z/N
             mu = mcol(F/Z)
             sigma = S/Z - numpy.dot(mu, mu.T)
-            sigma = sigma * numpy.eye(sigma.shape[0]) #diagonalize sigma
+            sigma = sigma * numpy.eye(sigma.shape[0]) 
             #constraint
             U, s, _ = numpy.linalg.svd(sigma)
             s[s<psi] = psi
@@ -151,8 +146,6 @@ def EM_diag(X, gmm):
             
             gmm_new.append((w, mu, sigma))
         gmm = gmm_new
-        #print(ll_new)
-    #print(ll_new-ll_old)
     return gmm
 
 def EM_full_tied(X, gmm):
@@ -173,7 +166,7 @@ def EM_full_tied(X, gmm):
         P = numpy.exp(SJ - SM)
         
         gmm_new = []
-        summatory = numpy.zeros((X.shape[0], X.shape[0]))
+        summ = numpy.zeros((X.shape[0], X.shape[0]))
         for g in range(G):
             gamma = P[g, :]
             Z = gamma.sum()
@@ -182,10 +175,10 @@ def EM_full_tied(X, gmm):
             w = Z/N
             mu = mcol(F/Z)
             sigma = S/Z - numpy.dot(mu, mu.T)
-            summatory += Z*sigma
-            gmm_new.append((w, mu)) #sigma is inserted later
-       
-        sigma = summatory / N #now sigma is tied
+            summ += Z*sigma
+            gmm_new.append((w, mu))
+
+        sigma = summ / N 
         #constraint
         U, s, _ = numpy.linalg.svd(sigma)
         s[s<psi] = psi
@@ -197,8 +190,7 @@ def EM_full_tied(X, gmm):
             gmm_new2.append((w, mu, sigma))
             
         gmm = gmm_new2
-        #print(ll_new)
-    #print(ll_new-ll_old)
+
     return gmm
     
 def EM_diag_tied(X, gmm):
@@ -219,7 +211,7 @@ def EM_diag_tied(X, gmm):
         P = numpy.exp(SJ - SM)
         
         gmm_new = []
-        summatory = numpy.zeros((X.shape[0], X.shape[0]))
+        summ = numpy.zeros((X.shape[0], X.shape[0]))
         for g in range(G):
             gamma = P[g, :]
             Z = gamma.sum()
@@ -228,11 +220,11 @@ def EM_diag_tied(X, gmm):
             w = Z/N
             mu = mcol(F/Z)
             sigma = S/Z - numpy.dot(mu, mu.T)
-            sigma = sigma * numpy.eye(sigma.shape[0]) #diagonalize sigma
-            summatory += Z*sigma
+            sigma = sigma * numpy.eye(sigma.shape[0])
+            summ += Z*sigma
             gmm_new.append((w, mu))
       
-        sigma = summatory / N
+        sigma = summ / N
         #constraint
         U, s, _ = numpy.linalg.svd(sigma)
         s[s<psi] = psi
@@ -243,15 +235,14 @@ def EM_diag_tied(X, gmm):
             (w, mu) = gmm_new[i]
             gmm_new2.append((w, mu, sigma))
         gmm = gmm_new2
-        #print(ll_new)
-    #print(ll_new-ll_old)
+
     return gmm
 
 K_fold=5
 
 def plot_minDCF_wrt_components(DTR, DTR_zscore,LTR, DEV=None, DEV_zscore=None, LEV=None, evaluation=False ):
     for Type in ['full','diag','full-tied','diag-tied']:
-        print('%s gmm: computation for plotting min_cdf wrt C started...' %Type)
+        print('%s Gaussian mixture model: computation to plot min_cdf wrt C started.......' %Type)
         min_DCFs_raw=[]
         min_DCFs_zscore=[]
         pi = 0.5
@@ -262,16 +253,16 @@ def plot_minDCF_wrt_components(DTR, DTR_zscore,LTR, DEV=None, DEV_zscore=None, L
                 
                 min_dcf_raw= validate.kfold(DTR, LTR, K_fold, pi, compute_score, Options ) [0]
                 min_DCFs_raw.append(min_dcf_raw)
-                print ("computed min_dcf for raw features -components=%d -pi=%f --> results min_dcf=%f "%(n, pi,  min_dcf_raw))
+                print ("Min_dcf for raw features -components=%d -pi=%f --> results min_dcf=%f "%(n, pi,  min_dcf_raw))
                 
                 min_dcf_zscore= validate.kfold(DTR_zscore, LTR, K_fold, pi, compute_score, Options ) [0]
                 min_DCFs_zscore.append(min_dcf_zscore)
-                print ("computed min_dcf for zscore features -components=%d pi=%f --> results min_dcf=%f "%(n, pi,  min_dcf_zscore))
+                print ("Min_dcf for zscore features -components=%d pi=%f --> results min_dcf=%f "%(n, pi,  min_dcf_zscore))
         print('')
        
         if evaluation==False:
-            iterations_array = numpy.arange (len(iterations_array))
             plt.figure()
+            iterations_array = numpy.arange (len(iterations_array))
             plt.bar(iterations_array - 0.2, min_DCFs_raw, 0.4, label = 'raw', color= "green" )
             plt.bar(iterations_array + 0.2, min_DCFs_zscore, 0.4, label = 'zscore', color="red")
             X_label = ['1','2','4','8','16','32','64']
@@ -283,7 +274,7 @@ def plot_minDCF_wrt_components(DTR, DTR_zscore,LTR, DEV=None, DEV_zscore=None, L
             plt.show()
         
         else:
-                print('%s gmm: computation for plotting min_cdf wrt C started evaluation...' %Type)
+                print('%s Gaussian mixture model: computation for plotting min_cdf wrt C started (Evaluation phase)...' %Type)
                 min_DCFs_raw_eval=[]
                 min_DCFs_zscore_eval=[]
                 pi = 0.5
@@ -295,12 +286,12 @@ def plot_minDCF_wrt_components(DTR, DTR_zscore,LTR, DEV=None, DEV_zscore=None, L
                         scores = compute_score(DEV, DTR, LTR, Options)
                         min_DCF = validate.compute_min_DCF(scores, LEV, pi, 1, 1)
                         min_DCFs_raw_eval.append(min_DCF)
-                        print ("computed min_dcf for raw features -components=%d -pi=%f --> results min_dcf=%f "%(n, pi,  min_DCF))
+                        print ("Min_dcf for raw features -components=%d -pi=%f --> results min_dcf=%f "%(n, pi,  min_DCF))
                         
                         scores = compute_score(DEV_zscore, DTR_zscore, LTR, Options)
                         min_DCF = validate.compute_min_DCF(scores, LEV, pi, 1, 1)
                         min_DCFs_zscore_eval.append(min_DCF)
-                        print ("computed min_dcf for zscore features -components=%d pi=%f --> results min_dcf=%f "%(n, pi,  min_DCF))
+                        print ("Min_dcf for zscore features -components=%d pi=%f --> results min_dcf=%f "%(n, pi,  min_DCF))
                 print('')
         
                 iterations_array = numpy.arange (len(iterations_array))

@@ -56,7 +56,7 @@ def compute_score(DTE,DTR,LTR, Options):
     scores = numpy.dot(_w.T,DTE)+_b
     return scores
 
-def plot_minDCF_wrt_lamda(DTR,LTR, gaussianize, DEV=None, LEV=None, evaluation=False):
+def plot_minDCF_wrt_lambda(DTR,LTR, gaussianize, DEV=None, LEV=None, evaluation=False):
     print("plot of min_DCF wrt Lambda Linear Log Reg started...")
     min_DCFs=[]
     for pi in [0.1, 0.5, 0.9]:

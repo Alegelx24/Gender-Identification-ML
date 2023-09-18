@@ -8,16 +8,15 @@ def mcol(v):
 def mrow(v):
     return v.reshape((1, v.size))
 
+def load_training_dataset(filename):
 
-def load_training_set(fname):
-    #setup visualization font
     plt.rc('font', size=16)
     plt.rc('xtick', labelsize=16)
     plt.rc('ytick', labelsize=16)
     
     DList = []
     labelsList = []
-    with open(fname) as f:
+    with open(filename) as f:
         for line in f:
             try:
                 attrs = line.split(',')[0:12]
@@ -39,11 +38,11 @@ def load_training_set(fname):
     
     return DTR, LTR
 
-def load_evaluation_set(fname):
+def load_evaluation_dataset(filename):
 
     DList = []
     labelsList = []
-    with open(fname) as f:
+    with open(filename) as f:
         for line in f:
             try:
                 attrs = line.split(',')[0:12]
@@ -62,7 +61,7 @@ def load_evaluation_set(fname):
 def split_db_2to1(D, L, seed=0):
     nTrain = int(D.shape[1]*2.0/3.0)
     numpy.random.seed(seed)
-    idx = numpy.random.permutation(D.shape[1]) #idx contains N numbers from 0 to N (where is equals to number of training samples) in a random  order
+    idx = numpy.random.permutation(D.shape[1]) #The 'idx' array comprises 'N' numbers ranging from 0 to 'N' (equivalent to the total number of training samples) arranged in a randomized sequence
     idxTrain = idx[0:nTrain]
     idxTest = idx[nTrain:]
     
@@ -74,21 +73,21 @@ def split_db_2to1(D, L, seed=0):
     return DTR, LTR, DTE, LTE
 
 def compute_mean (D):
-    mu = D.mean(1) #D is a matrix where each column is a vector, i need the mean for each feature
+    mu = D.mean(1) #D is a matrix where each column is a vector, i want the mean for each feature
     return mu.reshape(mu.shape[0],1)
 
 def compute_std (D):
-    sigma = D.std(1) #D is a matrix where each column is a vector, i need the variance for each feature
+    sigma = D.std(1) #D is a matrix where each column is a vector, i want the variance for each feature
     return sigma.reshape(sigma.shape[0],1)
 
-def scale_ZNormalization(DTR, DEV = None, normalize_ev=False): 
+def perform_ZNormalization(DTR, DEV = None, normalize_ev=False): 
     mu=compute_mean(DTR)
     sigma=compute_std(DTR)
     scaled_DTR = (DTR-mu) 
     scaled_DTR = scaled_DTR / sigma
     print('Z-Normalization done!')
     if normalize_ev:
-        DEV=(DEV-mu)/sigma #normalize evaluation_set with mean and std of training set
+        DEV=(DEV-mu)/sigma #normalize evaluation dataset using mean and std dev of training set
     return scaled_DTR, DEV
 
 
@@ -96,7 +95,7 @@ def center_dataset(DTR, DEV = None, normalize_ev=False):
     mu=compute_mean(DTR)
     centered_DTR = (DTR-mu) 
     print('Z-Normalization done!')
-     #normalize evaluation_set with mean and std of training set
+    #now normalize evaluation_set with mean and std of training set
     return centered_DTR, DEV
 
 
@@ -116,7 +115,7 @@ def plot_fraction_explained_variance_pca(DTR, LTR):
     plt.close()
 
 
-def plot_histograms(D, L, gaussianize):
+def plot_histograms(D, L, normalized):
 
     D0 = D[:, L==0]
     D1 = D[:, L==1]
@@ -136,7 +135,6 @@ def plot_histograms(D, L, gaussianize):
         11: 'feature #12'
     }
 
-
     for dIdx in range(12):
         plt.figure()
         plt.xlabel(feature_dict[dIdx])
@@ -147,14 +145,14 @@ def plot_histograms(D, L, gaussianize):
         
         plt.legend()
         plt.tight_layout() # TBR: Use with non-default font size to keep axis label inside the figure
-        if gaussianize:
-            plt.savefig('./images/DatasetAnalysis/hist/histogram_afterGaussianization_%d.png' % dIdx)
+        if normalized:
+            plt.savefig('./images/DatasetAnalysis/hist/histogram_after_zscore_%d.png' % dIdx)
         else:
-            plt.savefig('./images/DatasetAnalysis/hist/histogram_beforeGaussianization_zscore_%d.png' % dIdx)
+            plt.savefig('./images/DatasetAnalysis/hist/histogram_on_raw%d.png' % dIdx)
 
         plt.show()
     
-def plot_scatters(D, L, gaussianize):
+def plot_scatters(D, L, normalized):
     
     D0 = D[:, L==0]
     D1 = D[:, L==1]
@@ -182,9 +180,7 @@ def plot_scatters(D, L, gaussianize):
             plt.xlabel(feature_dict[dIdx1])
             plt.ylabel(feature_dict[dIdx2])
             plt.scatter(D0[dIdx1, :], D0[dIdx2, :], label = 'Male' , color= 'blue', alpha=0.6)
-            plt.scatter(D1[dIdx1, :], D1[dIdx2, :], label = 'Female', color= 'pink', alpha=0.6)
-            #TBR: The alpha blending value, between 0 (transparent) and 1 (opaque).
-        
+            plt.scatter(D1[dIdx1, :], D1[dIdx2, :], label = 'Female', color= 'pink', alpha=0.6)        
             plt.legend()
             plt.tight_layout() # Use with non-default font size to keep axis label inside the figure
             plt.savefig('./images/DatasetAnalysis/scatter/scatter_%d_%d.png' % (dIdx1, dIdx2))
@@ -231,13 +227,10 @@ def pca(m, D):
     mu = compute_mean(D)
     DCentered = D - mu #center the data
     C=numpy.dot(DCentered,DCentered.transpose())/float(D.shape[1]) #compute emprical covariance matrix C
-    _, U = numpy.linalg.eigh(C) #U contains the eigenvectors corresponding to eigenvalues of C in ascending order
-    #I need to take the first m eigenvectors corresponding to the m largest eigenvalues
-    P = U[:, ::-1][:, 0:m] #I invert the columns of U then I take the firsts m
+    _, U = numpy.linalg.eigh(C) #U have the eigenvectors corresponding to eigenvalues of C in ascending order
+    P = U[:, ::-1][:, 0:m] #invert the columns of U then I take the firsts m
     DProjected = numpy.dot(P.T, D)
     return DProjected, P
-
-
 
 def vrow(col):
     return col.reshape((1,col.size))
@@ -245,20 +238,17 @@ def vrow(col):
 def vcol(row):
     return row.reshape((row.size,1))
 
-def createCenteredSWc(DC):      #for already centered data 
+def createCenteredSWc(DC):     #this for already centered data 
     C = 0
     for i in range(DC.shape[1]):
         C = C + numpy.dot(DC[:,i:i+1],(DC[:,i:i+1]).T)
     C = C/float(DC.shape[1])
     return C
 
-
 def centerData(D):
     mu = D.mean(1)
     DC = D - vcol(mu)    #broadcasting applied
     return DC
-
-
 
 def createSBSW(D,L):
     D0 = D[:,L==0]      
@@ -290,36 +280,20 @@ def createSBSW(D,L):
     return SB,SW
 
 
-def LDA1(D,L,m):
-
+def LDA(D,L,m):
     SB, SW = createSBSW(D,L)        
     s,U = sp.linalg.eigh(SB,SW)  
     W = U[:,::-1][:,0:m]        
-
     return W
 
 
-
-
 def LDA_impl(D,L,m) :
-    W1 = LDA1(D,L,m)
+    W1 = LDA(D,L,m)
     DW = numpy.dot(W1.T,D)     #D projection on sub-space W1
     return DW,W1
 
 
-
-    
-
-# 
-    # DTEW = np.dot(W.T,DTE)
-    #plotCross(DW,LTR,m)
-    #plotSingle(DW, LTR, m)
-
-
-    
-# m is the number of dimensions
 def plotLDA(D, L,m):
-
 
     DW,W = LDA_impl(D,L,m)
     D=DW
