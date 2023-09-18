@@ -13,7 +13,7 @@ def perform_evaluation():
 
     DTR,LTR = util.load_training_dataset('./Data/Train.txt')
     DEV, LEV = util.load_evaluation_dataset('./Data/Test.txt')
-    DTR_norm,DEV_norm= util.perform_ZNormalization(DTR, DEV, normalize_ev = True) #Normalize evaluation samples using mean and covariance from training set
+    DTR_norm,DEV_norm= util.perform_ZNormalization(DTR, DEV, normalize_ev = True) 
     
     print('-----------EVALUATION WITH RAW FEATURES STARTED...-----------------')
     normalized=False
@@ -54,7 +54,6 @@ def evaluation_MVG_model(DTR, LTR, DEV, LEV):
         else:
             print ("------ Gaussian classifiers with NO PCA ------")
             
-        #Train models on all the training data and compute scores for the evaluation dataset
         scores_full = gauss.compute_score_full(DEV,DTR,LTR,Options) 
         scores_diag = gauss.compute_score_diagonal(DEV,DTR,LTR,Options) 
         scores_full_tied = gauss.compute_score_tied_full(DEV,DTR,LTR,Options) 
@@ -326,7 +325,7 @@ def bayes_error_plot_with_fusion_evaluation(DTR, LTR, DEV, LEV):
     'lambdaa' : 1e-5,
     'piT': 0.9,
     }
-    _ , scores2, labels2 = validate.kfold(DTR, LTR, 5, 1, log_reg.compute_score, Options) #pi(set to random value 1) actually not used to compute scores
+    _ , scores2, labels2 = validate.kfold(DTR, LTR, 5, 1, log_reg.compute_score, Options) 
     scores_TR2, LTR2, scores_TE2, LTE2 = calibration.split_scores(scores2, labels2) #split and shuffle scores
     scores2_ev = log_reg.compute_score(DEV, DTR, LTR, Options)
     calibrated_scores2 = calibration.compute_score_trasformation(scores_TR2, LTR2, scores2_ev, 0.5)
