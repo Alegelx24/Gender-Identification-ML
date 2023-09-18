@@ -63,7 +63,7 @@ def plot_ROC_with_fusion(D,L):
     
     _ , scores1, labels1 = validate.kfold(D, L, 5, 1, log_reg.compute_score, Options) 
     scores_TR, LTR, scores_TE, LTE = calibration.split_scores(scores1, labels1) #split and shuffle scores
-    calibrated_scores = calibration.score_trasformation(scores_TR, LTR, scores_TE, 0.5)
+    calibrated_scores = calibration.compute_score_trasformation(scores_TR, LTR, scores_TE, 0.5)
     FPR1, TPR1 =validate.ROC (calibrated_scores, LTE)
    
     Options={
@@ -74,7 +74,7 @@ def plot_ROC_with_fusion(D,L):
         }    
     _ , scores2, labels2 = validate.kfold(D, L, 5, 1, svm.compute_score_RBF, Options)
     scores_TR, LTR, scores_TE, _ = calibration.split_scores(scores2, labels2) #split and shuffle scores
-    calibrated_scores = calibration.score_trasformation(scores_TR, LTR, scores_TE, 0.5)
+    calibrated_scores = calibration.compute_score_trasformation(scores_TR, LTR, scores_TE, 0.5)
     FPR2, TPR2 =validate.ROC (calibrated_scores, LTE)
     
     fused_scores_TE, _ = fused_scores(D,L)
@@ -99,7 +99,7 @@ def bayes_plot_with_fusion(D,L):
     }   
     _ , scores1, labels1 = validate.kfold(D, L, 5, 1, log_reg.compute_score, Options) 
     scores_TR, LTR, scores_TE, LTE = calibration.split_scores(scores1, labels1) #split and shuffle scores
-    calibrated_scores = calibration.score_trasformation(scores_TR, LTR, scores_TE, 0.5)
+    calibrated_scores = calibration.compute_score_trasformation(scores_TR, LTR, scores_TE, 0.5)
     y_min1, y_act1 = validate.bayes_error(pi_array, calibrated_scores, LTE)
     for pi in [0.1, 0.5, 0.9]:
         act_dcf= validate.compute_act_DCF(scores1, labels1, pi, 1, 1)
@@ -113,7 +113,7 @@ def bayes_plot_with_fusion(D,L):
         }    
     _ , scores2, labels2 = validate.kfold(D, L, 5, 1, svm.compute_score_RBF, Options)
     scores_TR, LTR, scores_TE, _ = calibration.split_scores(scores2, labels2) #split and shuffle scores
-    calibrated_scores = calibration.score_trasformation(scores_TR, LTR, scores_TE, 0.5)
+    calibrated_scores = calibration.compute_score_trasformation(scores_TR, LTR, scores_TE, 0.5)
     y_min2, y_act2= validate.bayes_error(pi_array, calibrated_scores, LTE)
     for pi in [0.1, 0.5, 0.9]:
         act_dcf= validate.compute_act_DCF(scores2, labels2, pi, 1, 1)

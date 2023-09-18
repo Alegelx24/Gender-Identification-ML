@@ -347,7 +347,7 @@ def bayes_plot_with_fusion_evaluation(DTR, LTR, DEV, LEV):
     _ , scores1, labels1 = validate.kfold(DTR, LTR, 5, 0.5, svm.compute_score_RBF , Options)
     scores_TR1, LTR1, scores_TE1, LTE1 = calibration.split_scores(scores1, labels1) #split and shuffle scores
     scores1_ev = svm.compute_score_RBF(DEV, DTR, LTR, Options)
-    calibrated_scores1 = calibration.score_trasformation(scores_TR1, LTR1, scores1_ev, 0.5)
+    calibrated_scores1 = calibration.compute_score_trasformation(scores_TR1, LTR1, scores1_ev, 0.5)
     y_min1, y_act1= validate.bayes_error(pi_array, calibrated_scores1, LEV)
     
 
@@ -360,7 +360,7 @@ def bayes_plot_with_fusion_evaluation(DTR, LTR, DEV, LEV):
     _ , scores2, labels2 = validate.kfold(DTR, LTR, 5, 1, log_reg.compute_score, Options) #pi(set to random value 1) actually not used to compute scores
     scores_TR2, LTR2, scores_TE2, LTE2 = calibration.split_scores(scores2, labels2) #split and shuffle scores
     scores2_ev = log_reg.compute_score(DEV, DTR, LTR, Options)
-    calibrated_scores2 = calibration.score_trasformation(scores_TR2, LTR2, scores2_ev, 0.5)
+    calibrated_scores2 = calibration.compute_score_trasformation(scores_TR2, LTR2, scores2_ev, 0.5)
     y_min2, y_act2= validate.bayes_error(pi_array, calibrated_scores2, LEV)
 
     #Fusion
