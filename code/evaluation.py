@@ -153,14 +153,14 @@ def evaluation_SVM(DTR, LTR, DEV, LEV, gaussianize):
             Options['C']=1
             Options['piT']=piT
             Options['rebalance']=True
-            scores_linear_svm = svm.compute_score_linear(DEV, DTR, LTR, Options)
+            scores_linear_svm = svm.compute_score_SVM_linear(DEV, DTR, LTR, Options)
             for pi in [0.1, 0.5, 0.9]:
                 min_DCF = validate.compute_min_DCF(scores_linear_svm, LEV, pi, 1, 1)
                 print("linear SVM -C =1 -piT=%f - pi = %f --> min_DCF= %f" %(piT, pi,min_DCF))
         
         Options['C']=1
         Options['rebalance']=False
-        scores_linear_svm = svm.compute_score_linear(DEV, DTR, LTR, Options)
+        scores_linear_svm = svm.compute_score_SVM_linear(DEV, DTR, LTR, Options)
         for pi in [0.1, 0.5, 0.9]:
             min_DCF = validate.compute_min_DCF(scores_linear_svm, LEV, pi, 1, 1)
             print("linear SVM -C =1 -No rebalancing - pi = %f --> min_DCF= %f" %(pi,min_DCF))
@@ -180,14 +180,14 @@ def evaluation_SVM(DTR, LTR, DEV, LEV, gaussianize):
             Options['C']=1e-3
             Options['piT']=piT
             Options['rebalance']=True
-            scores_quadratic_svm = svm.compute_score_quadratic(DEV, DTR, LTR, Options)
+            scores_quadratic_svm = svm.compute_score_SVM_quadratic(DEV, DTR, LTR, Options)
             for pi in [0.1, 0.5, 0.9]:
                 min_DCF = validate.compute_min_DCF(scores_quadratic_svm, LEV, pi, 1, 1)
                 print("linear SVM -C =1e-3 -piT=%f - pi = %f --> min_DCF= %f" %(piT, pi,min_DCF))
         
         Options['C']=1e-3
         Options['rebalance']=False
-        scores_quadratic_svm = svm.compute_score_quadratic(DEV, DTR, LTR, Options)
+        scores_quadratic_svm = svm.compute_score_SVM_quadratic(DEV, DTR, LTR, Options)
         for pi in [0.1, 0.5, 0.9]:
             min_DCF = validate.compute_min_DCF(scores_quadratic_svm, LEV, pi, 1, 1)
             print("linear SVM -C =1e-3 -No rebalancing - pi = %f --> min_DCF= %f" %(pi,min_DCF))
@@ -208,14 +208,14 @@ def evaluation_SVM(DTR, LTR, DEV, LEV, gaussianize):
             Options['piT']=piT
             Options['gamma']=0.001
             Options['rebalance']=True
-            scores_rbf_svm = svm.compute_score_RBF(DEV, DTR, LTR, Options)
+            scores_rbf_svm = svm.compute_score_SVM_RBF(DEV, DTR, LTR, Options)
             for pi in [0.1, 0.5, 0.9]:
                 min_DCF = validate.compute_min_DCF(scores_rbf_svm, LEV, pi, 1, 1)
                 print("linear SVM -C =1 -piT=%f - pi = %f --> min_DCF= %f" %(piT, pi,min_DCF))
         
         Options['C']=100
         Options['rebalance']=False
-        scores_rbf_svm = svm.compute_score_RBF (DEV, DTR, LTR, Options)
+        scores_rbf_svm = svm.compute_score_SVM_RBF (DEV, DTR, LTR, Options)
         for pi in [0.1, 0.5, 0.9]:
             min_DCF = validate.compute_min_DCF(scores_rbf_svm, LEV, pi, 1, 1)
             print("linear SVM -C =1 -No rebalancing - pi = %f --> min_DCF= %f" %(pi,min_DCF))    
@@ -298,7 +298,7 @@ def evaluation_fusion(DTR, LTR, DEV, LEV):
         'rebalance':None
         }  
     
-    scores1 = svm.compute_score_RBF(DEV, DTR, LTR, Options)
+    scores1 = svm.compute_score_SVM_RBF(DEV, DTR, LTR, Options)
     scores1 = util.mrow(scores1)
     
     #linear Lr
@@ -344,9 +344,9 @@ def bayes_plot_with_fusion_evaluation(DTR, LTR, DEV, LEV):
         'gamma':0.1,
         'rebalance':None
         }  
-    _ , scores1, labels1 = validate.kfold(DTR, LTR, 5, 0.5, svm.compute_score_RBF , Options)
+    _ , scores1, labels1 = validate.kfold(DTR, LTR, 5, 0.5, svm.compute_score_SVM_RBF , Options)
     scores_TR1, LTR1, scores_TE1, LTE1 = calibration.split_scores(scores1, labels1) #split and shuffle scores
-    scores1_ev = svm.compute_score_RBF(DEV, DTR, LTR, Options)
+    scores1_ev = svm.compute_score_SVM_RBF(DEV, DTR, LTR, Options)
     calibrated_scores1 = calibration.compute_score_trasformation(scores_TR1, LTR1, scores1_ev, 0.5)
     y_min1, y_act1= validate.bayes_error(pi_array, calibrated_scores1, LEV)
     

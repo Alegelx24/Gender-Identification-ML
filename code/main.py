@@ -185,12 +185,12 @@ def train_svm(D,L):
             for pi in [0.1, 0.5, 0.9]:
                 Options['piT']=piT
                 Options['rebalance']=True
-                min_dcf_kfold = validate.kfold(D, L, k, pi, svm.compute_score_linear, Options)[0]
+                min_dcf_kfold = validate.kfold(D, L, k, pi, svm.compute_score_SVM_linear, Options)[0]
                 print("Linear SVM with -piT = %f -C=%f - pi = %f - minDCF = %f" %(piT,Options['C'], pi,min_dcf_kfold))
                 
         Options['rebalance']=False
         for pi in [0.1, 0.5, 0.9]:
-                min_dcf_kfold = validate.kfold(D, L, k, pi, svm.compute_score_linear, Options)[0]
+                min_dcf_kfold = validate.kfold(D, L, k, pi, svm.compute_score_SVM_linear, Options)[0]
                 print("Linear SVM without rebalancing -C=%f - pi = %f - minDCF = %f" %(Options['C'], pi,min_dcf_kfold)) 
           
 
@@ -204,13 +204,13 @@ def train_svm(D,L):
                 Options['C']=0.1
                 Options['piT']=piT
                 Options['rebalance']=True
-                min_dcf_kfold = validate.kfold(D, L, k, pi, svm.compute_score_quadratic, Options)[0]
+                min_dcf_kfold = validate.kfold(D, L, k, pi, svm.compute_score_SVM_quadratic, Options)[0]
                 print("Quadratric SVM with -piT = %f -C=%f - pi = %f - minDCF = %f" %(piT,Options['C'], pi,min_dcf_kfold))
                 
         Options['rebalance']=False
         Options['C']=1e-1
         for pi in [0.1, 0.5, 0.9]:
-            min_dcf_kfold = validate.kfold(D, L, k, pi, svm.compute_score_quadratic, Options)[0]
+            min_dcf_kfold = validate.kfold(D, L, k, pi, svm.compute_score_SVM_quadratic, Options)[0]
             print("Quadratic SVM without rebalancing -C=%f - pi = %f - minDCF = %f" %(Options['C'], pi,min_dcf_kfold))
            
 
@@ -225,13 +225,13 @@ def train_svm(D,L):
                 Options['piT']=piT
                 Options['gamma']=0.1
                 Options['rebalance']=True
-                min_dcf_kfold = validate.kfold(D, L, k, pi, svm.compute_score_RBF, Options)[0]
+                min_dcf_kfold = validate.kfold(D, L, k, pi, svm.compute_score_SVM_RBF, Options)[0]
                 print("RBF SVM with -piT = %f -gamma =%f -C=%f - pi = %f -> minDCF = %f" %(piT, Options['gamma'], Options['C'], pi,min_dcf_kfold))      
             
         Options['rebalance']=False
         for pi in [0.1, 0.5, 0.9]:
             pass
-            min_dcf_kfold = validate.kfold(D, L, k, pi, svm.compute_score_RBF, Options)[0]
+            min_dcf_kfold = validate.kfold(D, L, k, pi, svm.compute_score_SVM_RBF, Options)[0]
             print("RBF SVM without rebalancing -gamma =%f -C=%f - pi = %f -> minDCF = %f" %(Options['gamma'], Options['C'], pi,min_dcf_kfold))
               
         m = m-1

@@ -157,7 +157,7 @@ def min_vs_act_after_calibration(DTR,LTR, DEV=None, LEV=None, evaluation=False):
 def split_scores(D,L, seed=0):
     nTrain = int(D.shape[0]*8.0/10.0)
     numpy.random.seed(seed)
-    idx = numpy.random.permutation(D.shape[0]) #idx contains N numbers from 0 to N (where is equals to number of training samples) in a random  order
+    idx = numpy.random.permutation(D.shape[0])
     idxTrain = idx[0:nTrain]
     idxTest = idx[nTrain:]
     

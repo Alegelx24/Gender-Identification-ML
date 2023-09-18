@@ -31,7 +31,7 @@ def fused_scores(D,L, scores_ev= None, evaluation= False):
         'gamma':0.1,
         'rebalance':None
         }    
-    _ , scores2, labels = validate.kfold(D, L, 5, 1, svm.compute_score_RBF, Options) 
+    _ , scores2, labels = validate.kfold(D, L, 5, 1, svm.compute_score_SVM_RBF, Options) 
     scores2_TR, LTR, scores2_TE, LTE = calibration.split_scores(scores2, labels) #same split used for best model 1 above. Labels returned are the same of best model 1
     scores2_TR = mrow(scores2_TR)
     scores2_TE = mrow(scores2_TE)
@@ -72,7 +72,7 @@ def plot_ROC_with_fusion(D,L):
         'gamma':0.1,
         'rebalance':None
         }    
-    _ , scores2, labels2 = validate.kfold(D, L, 5, 1, svm.compute_score_RBF, Options)
+    _ , scores2, labels2 = validate.kfold(D, L, 5, 1, svm.compute_score_SVM_RBF, Options)
     scores_TR, LTR, scores_TE, _ = calibration.split_scores(scores2, labels2) #split and shuffle scores
     calibrated_scores = calibration.compute_score_trasformation(scores_TR, LTR, scores_TE, 0.5)
     FPR2, TPR2 =validate.ROC (calibrated_scores, LTE)
@@ -111,7 +111,7 @@ def bayes_plot_with_fusion(D,L):
         'gamma':0.1,
         'rebalance':None
         }    
-    _ , scores2, labels2 = validate.kfold(D, L, 5, 1, svm.compute_score_RBF, Options)
+    _ , scores2, labels2 = validate.kfold(D, L, 5, 1, svm.compute_score_SVM_RBF, Options)
     scores_TR, LTR, scores_TE, _ = calibration.split_scores(scores2, labels2) #split and shuffle scores
     calibrated_scores = calibration.compute_score_trasformation(scores_TR, LTR, scores_TE, 0.5)
     y_min2, y_act2= validate.bayes_error(pi_array, calibrated_scores, LTE)
