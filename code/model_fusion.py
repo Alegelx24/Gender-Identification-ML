@@ -12,7 +12,6 @@ def mrow(x):
 def mcol(x):
     return numpy.reshape(x, (x.shape[0],1))
 
-
 def fused_scores(D,L, scores_ev= None, evaluation= False):
     #best model1 
     Options={
@@ -32,7 +31,7 @@ def fused_scores(D,L, scores_ev= None, evaluation= False):
         'gamma':0.1,
         'rebalance':None
         }    
-    _ , scores2, labels = validate.kfold(D, L, 5, 1, svm.compute_score_RBF, Options) #pi(set to random value 1) actually not used to compute scores
+    _ , scores2, labels = validate.kfold(D, L, 5, 1, svm.compute_score_RBF, Options) 
     scores2_TR, LTR, scores2_TE, LTE = calibration.split_scores(scores2, labels) #same split used for best model 1 above. Labels returned are the same of best model 1
     scores2_TR = mrow(scores2_TR)
     scores2_TE = mrow(scores2_TE)
@@ -40,7 +39,7 @@ def fused_scores(D,L, scores_ev= None, evaluation= False):
     all_scores_TR = numpy.vstack((scores1_TR, scores2_TR))
     all_scores_TE = numpy.vstack((scores1_TE, scores2_TE))
     pi=0.5
-    alfa, beta_prime = log_reg.train_log_reg(all_scores_TR, LTR, 1e-06, pi) #??this pi should be fixed or not????
+    alfa, beta_prime = log_reg.train_log_reg(all_scores_TR, LTR, 1e-06, pi) 
     new_scores= numpy.dot(alfa.T,all_scores_TE)+beta_prime - numpy.log(pi/(1-pi))
     if evaluation:
         new_scores = numpy.dot(alfa.T,scores_ev)+beta_prime - numpy.log(pi/(1-pi))
@@ -55,14 +54,14 @@ def validate_fused_scores(D,L):
         act_DCF_non_calibrated= validate.compute_act_DCF(fused_scores_TE, LTE, pi, 1, 1, th=None) #if th=None, compute_act_DCF function will use theoretical threshold
         print('act DCF computed on theoretical threshold (pi=%f) without calibration = %f'%(pi,act_DCF_non_calibrated))
 
-def ROC_with_fusion(D,L):
+def plot_ROC_with_fusion(D,L):
     
     Options={
     'lambdaa' : 1e-5,
     'piT': 0.9,
     }   
     
-    _ , scores1, labels1 = validate.kfold(D, L, 5, 1, log_reg.compute_score, Options) #pi(set to random value 1) actually not used to compute scores
+    _ , scores1, labels1 = validate.kfold(D, L, 5, 1, log_reg.compute_score, Options) 
     scores_TR, LTR, scores_TE, LTE = calibration.split_scores(scores1, labels1) #split and shuffle scores
     calibrated_scores = calibration.score_trasformation(scores_TR, LTR, scores_TE, 0.5)
     FPR1, TPR1 =validate.ROC (calibrated_scores, LTE)
@@ -73,7 +72,7 @@ def ROC_with_fusion(D,L):
         'gamma':0.1,
         'rebalance':None
         }    
-    _ , scores2, labels2 = validate.kfold(D, L, 5, 1, svm.compute_score_RBF, Options) #pi(set to random value 1) actually not used to compute scores
+    _ , scores2, labels2 = validate.kfold(D, L, 5, 1, svm.compute_score_RBF, Options)
     scores_TR, LTR, scores_TE, _ = calibration.split_scores(scores2, labels2) #split and shuffle scores
     calibrated_scores = calibration.score_trasformation(scores_TR, LTR, scores_TE, 0.5)
     FPR2, TPR2 =validate.ROC (calibrated_scores, LTE)
@@ -98,14 +97,13 @@ def bayes_plot_with_fusion(D,L):
     'lambdaa' : 1e-5,
     'piT': 0.9,
     }   
-        
-    _ , scores1, labels1 = validate.kfold(D, L, 5, 1, log_reg.compute_score, Options) #pi(set to random value 1) actually not used to compute scores
+    _ , scores1, labels1 = validate.kfold(D, L, 5, 1, log_reg.compute_score, Options) 
     scores_TR, LTR, scores_TE, LTE = calibration.split_scores(scores1, labels1) #split and shuffle scores
     calibrated_scores = calibration.score_trasformation(scores_TR, LTR, scores_TE, 0.5)
     y_min1, y_act1 = validate.bayes_error(pi_array, calibrated_scores, LTE)
     for pi in [0.1, 0.5, 0.9]:
         act_dcf= validate.compute_act_DCF(scores1, labels1, pi, 1, 1)
-        print ('Quad Log Reg: pi = %f --> act_DCF = %f'%(pi,act_dcf))
+        print ('Quadratic Log Reg: pi = %f --> act_DCF = %f'%(pi,act_dcf))
     
     Options={
         'C' : 10,
@@ -113,7 +111,7 @@ def bayes_plot_with_fusion(D,L):
         'gamma':0.1,
         'rebalance':None
         }    
-    _ , scores2, labels2 = validate.kfold(D, L, 5, 1, svm.compute_score_RBF, Options) #pi(set to random value 1) actually not used to compute scores
+    _ , scores2, labels2 = validate.kfold(D, L, 5, 1, svm.compute_score_RBF, Options)
     scores_TR, LTR, scores_TE, _ = calibration.split_scores(scores2, labels2) #split and shuffle scores
     calibrated_scores = calibration.score_trasformation(scores_TR, LTR, scores_TE, 0.5)
     y_min2, y_act2= validate.bayes_error(pi_array, calibrated_scores, LTE)
@@ -135,8 +133,8 @@ def bayes_plot_with_fusion(D,L):
     plt.ylim(bottom=0)
     plt.xlabel("application")
     plt.ylabel("cost")
-    plt.tight_layout() # Use with non-default font size to keep axis label inside the figure
-    plt.savefig("./images/actVSmin_fusion_evaluatio_lr+svm.png")
+    plt.tight_layout() 
+    plt.savefig("./images/actVSmin_fusion_evaluation_lr+svm.png")
     plt.show()
     
     

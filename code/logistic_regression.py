@@ -2,6 +2,7 @@ import numpy
 import scipy
 import validate
 import matplotlib.pyplot as plt
+K=5
 
 def mcol(v):
     return v.reshape((v.size, 1))
@@ -9,38 +10,35 @@ def mcol(v):
 def mrow(v):
     return v.reshape((1, v.size))
 
+########################################################################
+############## LINEAR LR    ############################################
+########################################################################
 
-K=5
+def logreg_obj_wrap(DTR, LTR, l, piT): #l is lambda
 
-#LINEAR LOG REG
-
-def logreg_obj_wrap(DTR, LTR, l, piT): #l is lamda (used for regularization)
-    #compute the labels Z
     Z= LTR * 2.0 -1.0
     M=DTR.shape[0]
     def logreg_obj(v):
-        #v is a vector that contains [w,b]
-        #extract b and w
+        
         w = v [0:M]
         b = v[-1]
         
-      
         DTR0 = DTR[:, LTR==0]
         DTR1 = DTR[:, LTR==1]
         Z0 = Z[LTR==0]
         Z1 = Z[LTR==1]
         
         S1=numpy.dot(w.T, DTR1)+b
-        S0=numpy.dot(w.T, DTR0)+b #S= score= exponent of e = wTxi +b
-        cxe=numpy.logaddexp(0,-S1*Z1).mean()* piT #cxe is the cross entropy = log [e^0 + e^(-sz)]
+        S0=numpy.dot(w.T, DTR0)+b 
+        cxe=numpy.logaddexp(0,-S1*Z1).mean()* piT 
         cxe= cxe + numpy.logaddexp(0,-S0*Z0).mean()* (1-piT)
-        return cxe+0.5*l*numpy.linalg.norm(w)**2 #I add also the regularization term
+        return cxe+0.5*l*numpy.linalg.norm(w)**2 #regularizzation term also
     return logreg_obj
 
 def train_log_reg(DTR, LTR, lambdaa, piT, ):
     logreg_objective=logreg_obj_wrap(DTR, LTR, lambdaa, piT)
-    _v,j,_d = scipy.optimize.fmin_l_bfgs_b(logreg_objective, numpy.zeros(DTR.shape[0]+1) , approx_grad=True) #numpy.zeros(DTR.shape[0]+1) is the starting point. I am providing w and b equal to 0 as starting point
-    #I can recover optimal w* and b* from _v:
+    _v,j,_d = scipy.optimize.fmin_l_bfgs_b(logreg_objective, numpy.zeros(DTR.shape[0]+1) , approx_grad=True) 
+    #recover optimal w* and b* from _v:
     _w=_v[0:DTR.shape[0]]
     _b=_v[-1]
     return _w,_b
@@ -56,7 +54,7 @@ def compute_score(DTE,DTR,LTR, Options):
     scores = numpy.dot(_w.T,DTE)+_b
     return scores
 
-def plot_minDCF_wrt_lambda(DTR,LTR, gaussianize, DEV=None, LEV=None, evaluation=False):
+def plot_minDCF_wrt_lambda(DTR,LTR, normalized, DEV=None, LEV=None, evaluation=False):
     print("plot of min_DCF wrt Lambda Linear Log Reg started...")
     min_DCFs=[]
     for pi in [0.1, 0.5, 0.9]:
@@ -71,7 +69,7 @@ def plot_minDCF_wrt_lambda(DTR,LTR, gaussianize, DEV=None, LEV=None, evaluation=
         min_DCFs_p1 = min_DCFs[40:80] #min_DCF results with prior = 0.5
         min_DCFs_p2 = min_DCFs[80:120] #min_DCF results with prior = 0.9
 
-    if evaluation==False: #plot onlly result for validation set
+    if evaluation==False: 
         plt.figure()
         plt.plot(lambdas, min_DCFs_p0, label='prior=0.1')
         plt.plot(lambdas, min_DCFs_p1, label='prior=0.5')
@@ -83,7 +81,7 @@ def plot_minDCF_wrt_lambda(DTR,LTR, gaussianize, DEV=None, LEV=None, evaluation=
         plt.savefig("./images/min_DCF_lambda_log_reg_raw.png")
         plt.show()    
     
-    else: #compare plot of validation and evaluation set
+    else:
         min_DCFs=[]
         for pi in [0.1, 0.5, 0.9]:
             lambdas = numpy.logspace(-6,6, num = 40)
@@ -107,19 +105,20 @@ def plot_minDCF_wrt_lambda(DTR,LTR, gaussianize, DEV=None, LEV=None, evaluation=
         plt.xlabel("λ")
         plt.ylabel("min_DCF")
         plt.legend()
-        if gaussianize:
-            plt.savefig("./images/eval/min_DCF_lambda_log_reg_ev_val_zscore.png")
+        if normalized:
+            plt.savefig("./images/eval/min_DCF_lambda_log_reg_eval+val_zscore.png")
             plt.show()
 
         else:
-            plt.savefig("./images/eval/min_DCF_lambda_log_reg_ev_val_raw.png")
+            plt.savefig("./images/eval/min_DCF_lambda_log_reg_eval+val_raw.png")
             plt.show()
 
     return min_DCFs
 
 
-
-#QUADRATIC LOG REG  
+########################################################################
+############## QUADRATIC LOGISTIC REGRESSION   #########################
+########################################################################
 
 def compute_score_quadratic(DTE,DTR,LTR, Options):
 
@@ -152,7 +151,7 @@ def compute_score_quadratic(DTE,DTR,LTR, Options):
     scores = numpy.dot(_w.T,DTE)+_b
     return scores
     
-def quadratic_plot_minDCF_wrt_lambda(DTR,LTR, gaussianize, DEV=None, LEV=None, evaluation=False):
+def quadratic_plot_minDCF_wrt_lambda(DTR,LTR, normalized, DEV=None, LEV=None, evaluation=False):
     print ('Quadratic Logistic Regression: computation for plot minDCF wt lambda started...')
     min_DCFs=[]
     for pi in [0.1, 0.5, 0.9]:
@@ -168,7 +167,7 @@ def quadratic_plot_minDCF_wrt_lambda(DTR,LTR, gaussianize, DEV=None, LEV=None, e
     min_DCFs_p1 = min_DCFs[10:20] #min_DCF results with prior = 0.5
     min_DCFs_p2 = min_DCFs[20:30] #min_DCF results with prior = 0.9
 
-    if evaluation==False: #plot onlly result for validation set
+    if evaluation==False: 
         plt.figure()
         plt.plot(lambdas, min_DCFs_p0, label='prior=0.1')
         plt.plot(lambdas, min_DCFs_p1, label='prior=0.5')
@@ -177,13 +176,13 @@ def quadratic_plot_minDCF_wrt_lambda(DTR,LTR, gaussianize, DEV=None, LEV=None, e
         plt.semilogx()
         plt.xlabel("λ")
         plt.ylabel("min_DCF")
-        if gaussianize:
-            plt.savefig("./images/min_DCF_lamda_quadratic_log_reg_gaussianized.png")
+        if normalized:
+            plt.savefig("./images/min_DCF_lamda_quadratic_log_reg_normalized.png")
         else:
             plt.savefig("./images/min_DCF_lamda_quadratic_log_reg_raw.png")
         plt.show()
         
-    else: #compare plot of validation and evaluation set
+    else: 
         min_DCFs=[]
         for pi in [0.1, 0.5, 0.9]:
             lambdas = numpy.logspace(-6,6, num = 10)
@@ -207,10 +206,10 @@ def quadratic_plot_minDCF_wrt_lambda(DTR,LTR, gaussianize, DEV=None, LEV=None, e
         plt.xlabel("λ")
         plt.ylabel("min_DCF")
         plt.legend()
-        if gaussianize:
-            plt.savefig("./images/eval/min_DCF_lamda_quadratic_log_reg_ev_val_zscore.png")
+        if normalized:
+            plt.savefig("./images/eval/min_DCF_lamda_quadratic_log_reg_eval+val_zscore.png")
         else:
-            plt.savefig("./images/eval/min_DCF_lamda_quadratic_log_reg_ev_val_raw.png")
+            plt.savefig("./images/eval/min_DCF_lamda_quadratic_log_reg_eval+val_raw.png")
         plt.show()
     
     return min_DCFs

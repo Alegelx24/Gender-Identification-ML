@@ -74,6 +74,7 @@ def plot(DTR, LTR, normalized):
     util.plotLDA(DTR, LTR,2)
     
 def train_gaussian_models(D,L):
+    Options={ }  
     D_copy = D
     m = 12
     while m>=7:
@@ -84,13 +85,13 @@ def train_gaussian_models(D,L):
             print ("------ Gaussian classifiers with NO PCA ------")
         
         for pi in [0.1, 0.5, 0.9]:
-            min_dcf_full = validate.kfold(D, L, k, pi, gaussian.compute_score_full )[0]
+            min_dcf_full = validate.kfold(D, L, k, pi, gaussian.compute_score_full, Options )[0]
             print(" Full-Cov MVG - pi = %f -> minDCF = %f" %(pi,min_dcf_full))
-            min_dcf_diag = validate.kfold(D, L, k, pi, gaussian.compute_score_diagonal )[0]
+            min_dcf_diag = validate.kfold(D, L, k, pi, gaussian.compute_score_diagonal, Options )[0]
             print(" Diag-cov MVG - pi = %f -> minDCF = %f" %(pi,min_dcf_diag))
-            min_dcf_tied_full = validate.kfold(D, L, k, pi, gaussian.compute_score_tied_full )[0]
+            min_dcf_tied_full = validate.kfold(D, L, k, pi, gaussian.compute_score_tied_full, Options )[0]
             print(" Tied full-cov MVG - pi = %f  minDCF = %f" %(pi,min_dcf_tied_full))
-            min_dcf_tied_diag = validate.kfold(D, L, k, pi, gaussian.compute_score_tied_diagonal )[0]
+            min_dcf_tied_diag = validate.kfold(D, L, k, pi, gaussian.compute_score_tied_diagonal, Options )[0]
             print(" Tied diag-cov MVG - pi = %f  minDCF = %f" %(pi,min_dcf_tied_diag))
 
         m=m-1
@@ -304,7 +305,7 @@ def perform_calibration(D,L):
 
 def validate_fusion(D,L):
     fusion.validate_fused_scores(D,L)
-    fusion.ROC_with_fusion(D,L)
+    fusion.plot_ROC_with_fusion(D,L)
     fusion.bayes_plot_with_fusion(D,L)
 
 

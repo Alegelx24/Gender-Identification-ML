@@ -65,28 +65,28 @@ def train_gaussian_classifier(DTR,LTR, gaussian_type):
         C1=C_tied
     return mu0,C0,mu1,C1
 
-def compute_score_full(DTE,DTR,LTR ):
+def compute_score_full(DTE,DTR,LTR, Options ):
     mu0,C0,mu1,C1= train_gaussian_classifier(DTR, LTR, 'full')
     log_density_c0 = log_pdf_GAU_ND(DTE, mu0, C0)
     log_density_c1 = log_pdf_GAU_ND(DTE, mu1, C1)
     score = log_density_c1 - log_density_c0
     return score
 
-def compute_score_diagonal(DTE,DTR,LTR ):
+def compute_score_diagonal(DTE,DTR,LTR, Options ):
     mu0,C0,mu1,C1= train_gaussian_classifier(DTR, LTR, 'diag')
     log_density_c0 = log_pdf_GAU_ND(DTE, mu0, C0)
     log_density_c1 = log_pdf_GAU_ND(DTE, mu1, C1)
     score = log_density_c1 - log_density_c0
     return score
 
-def compute_score_tied_full(DTE,DTR,LTR ):
+def compute_score_tied_full(DTE,DTR,LTR, Options ):
     mu0,C0,mu1,C1= train_gaussian_classifier(DTR, LTR, 'tied-full')
     log_density_c0 = log_pdf_GAU_ND(DTE, mu0, C0)
     log_density_c1 = log_pdf_GAU_ND(DTE, mu1, C1)
     score = log_density_c1 - log_density_c0
     return score
 
-def compute_score_tied_diagonal(DTE,DTR,LTR ):
+def compute_score_tied_diagonal(DTE,DTR,LTR, Options ):
     mu0,C0,mu1,C1= train_gaussian_classifier(DTR, LTR, 'tied-diag')
     log_density_c0 = log_pdf_GAU_ND(DTE, mu0, C0)
     log_density_c1 = log_pdf_GAU_ND(DTE, mu1, C1)
