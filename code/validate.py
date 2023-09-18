@@ -1,8 +1,5 @@
 import numpy
 import matplotlib.pyplot as plt
-import pylab
-import support_vector_machine as svm
-import logistic_regression as log_reg
 
 def assign_labels(scores, pi, Cfn, Cfp, th=None):
     if th is None:
@@ -10,32 +7,27 @@ def assign_labels(scores, pi, Cfn, Cfp, th=None):
     P= scores > th
     return numpy.int32(P)
         
-
-def compute_confusion_matrix_binary(Pred, Labels):
+def compute_confusion_binary_matrix(P, Labels):
     C=numpy.zeros((2,2))
-    C[0,0] = ((Pred==0) * (Labels==0)).sum()
-    C[0,1] = ((Pred==0) * (Labels==1)).sum()
-    C[1,0] = ((Pred==1) * (Labels==0)).sum()
-    C[1,1] = ((Pred==1) * (Labels==1)).sum()
+    C[0,0] = ((P==0) * (Labels==0)).sum()
+    C[0,1] = ((P==0) * (Labels==1)).sum()
+    C[1,0] = ((P==1) * (Labels==0)).sum()
+    C[1,1] = ((P==1) * (Labels==1)).sum()
     return C
 
-
-def compute_emp_Bayes_binary(CM, pi, Cfn, Cfp):
+def compute_emp_binary_Bayes(CM, pi, Cfn, Cfp):
     fnr= CM[0,1] / (CM[0,1]+CM[1,1])
     fpr= CM[1,0] / (CM[0,0]+CM[1,0])
     return pi*Cfn*fnr + (1-pi) * Cfp * fpr
 
-
 def compute_normalized_emp_Bayes(CM, pi, Cfn, Cfp):
-    empBayes= compute_emp_Bayes_binary(CM, pi, Cfn, Cfp)
+    empBayes= compute_emp_binary_Bayes(CM, pi, Cfn, Cfp)
     return empBayes/ min(pi*Cfn, (1-pi)*Cfp)
-    
 
 def compute_act_DCF(scores, labels, pi, Cfn, Cfp, th=None):
     Pred= assign_labels(scores, pi, Cfn, Cfp, th=th)
-    CM= compute_confusion_matrix_binary(Pred, labels)
+    CM= compute_confusion_binary_matrix(Pred, labels)
     return compute_normalized_emp_Bayes(CM, pi, Cfn, Cfp)
-
 
 def compute_min_DCF(scores, labels, pi, Cfn, Cfp):
     t = numpy.array(scores)
@@ -45,7 +37,6 @@ def compute_min_DCF(scores, labels, pi, Cfn, Cfp):
     for _th in t:
         dcfList.append(compute_act_DCF(scores, labels, pi, Cfn, Cfp, th=_th))
     return numpy.array(dcfList).min()
-
 
 def bayes_error(pArray, scores, labels):
     y_min=[]
@@ -59,17 +50,14 @@ def bayes_error(pArray, scores, labels):
 
 def ROC(scores, Labels):
     
-    #The ROC curve require to compute and plot TPR and FPR changing threshold. I have to sweep all the possible trhesholds.
-    #I consider all the thresholds corresponding to mhy sorted scores.
     thresholds = numpy.array(scores)
     thresholds.sort()
-    thresholds = numpy.concatenate([numpy.array([-numpy.inf]), thresholds, numpy.array([numpy.inf]) ]) #I add -infinity to te beginning and +infinity to the end
+    thresholds = numpy.concatenate([numpy.array([-numpy.inf]), thresholds, numpy.array([numpy.inf]) ]) 
     
-    #I create an array for FPR and TPR, each element of these array correspond to FPR and TPR for a certain threshold
     FPR = numpy.zeros(thresholds.size)
     TPR = numpy.zeros(thresholds.size)
     for idx,t in enumerate(thresholds):
-        #For each value of a trheshold t I compute a new Confusion matrix from which I extract TPR and FPR
+        #For each value of t I compute a new Confusion matrix from which I extract TPR and FPR
         Pred= numpy.int32(scores>t)
         Conf = numpy.zeros((2,2))
         for i in range(2):
@@ -80,13 +68,12 @@ def ROC(scores, Labels):
             
     return FPR,TPR
 
-
 def kfold(D,L, k, pi, compute_s, Options):
     numpy.random.seed(0)
-    indexes = numpy.random.permutation(D.shape[1]) #Shuffle
+    indexes = numpy.random.permutation(D.shape[1]) 
     fold_dim  = int(D.shape[1]/k)
     scores = numpy.array([])
-    labels = numpy.array([]) #if fold_dim is a float number labels < L
+    labels = numpy.array([]) 
     
     for i in range(k):
         idx_test = indexes[i*fold_dim:(i+1)*fold_dim]
