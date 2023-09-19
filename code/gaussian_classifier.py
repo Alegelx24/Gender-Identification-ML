@@ -45,7 +45,6 @@ def log_pdf_onesample(x, mu, C):
 def log_pdf_GAU_ND(X,mu,C): #take as input a matrix of samples
     y=[log_pdf_onesample(X[:, i:i+1], mu, C) for i in range(X.shape[1])]
     return numpy.array(y).ravel()
-    #if i don't use ravel() i obtain a row-vector
 
 def train_gaussian_classifier(DTR,LTR, gaussian_type):
     D0 = DTR[:, LTR==0]

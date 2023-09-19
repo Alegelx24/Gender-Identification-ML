@@ -65,7 +65,6 @@ def compute_score_trasformation(scores_TR, LTR, scores_TE,pi):
     return new_scores
     
 # trasform score so that theoretical threshold provide close to optimal values over different applications
-
 def validate_score_trasformation(DTR,LTR, DEV=None, LEV=None, evaluation=False):
     print ('-------------------SCORE TRASFORMATION-------------------')
     
@@ -120,8 +119,7 @@ def min_vs_act_after_calibration(DTR,LTR, DEV=None, LEV=None, evaluation=False):
     
     '''Options={
         'Type':'full-tied',
-        'iterations': 2}   
-     
+        'iterations': 2}       
     '''
     #Linear Logreg
     Options={

@@ -38,7 +38,6 @@ def logreg_obj_wrap(DTR, LTR, l, piT): #l is lambda
 def train_log_reg(DTR, LTR, lambdaa, piT, ):
     logreg_objective=logreg_obj_wrap(DTR, LTR, lambdaa, piT)
     _v,j,_d = scipy.optimize.fmin_l_bfgs_b(logreg_objective, numpy.zeros(DTR.shape[0]+1) , approx_grad=True) 
-    #recover optimal w* and b* from _v:
     _w=_v[0:DTR.shape[0]]
     _b=_v[-1]
     return _w,_b

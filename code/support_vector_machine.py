@@ -440,7 +440,7 @@ def plot_quadratic_minDCF_wrt_C(DTR,LTR,normalized, DEV=None, LEV=None, evaluati
         plt.plot(C_array, min_DCFs_p1_eval, 'r', label='prior=0.5-eval')
         plt.plot(C_array, min_DCFs_p2_eval, 'g', label='prior=0.9-eval')  
         plt.legend()
-        plt.tight_layout() # Use with non-default font size to keep axis label inside the figure
+        plt.tight_layout() 
         plt.semilogx()
         plt.xlabel("C")
         plt.ylabel("min_DCF")

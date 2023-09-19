@@ -61,7 +61,7 @@ def load_evaluation_dataset(filename):
 def split_db_2to1(D, L, seed=0):
     nTrain = int(D.shape[1]*2.0/3.0)
     numpy.random.seed(seed)
-    idx = numpy.random.permutation(D.shape[1]) #The 'idx' array comprises 'N' numbers ranging from 0 to 'N' (equivalent to the total number of training samples) arranged in a randomized sequence
+    idx = numpy.random.permutation(D.shape[1]) # idx array comprises N numbers ranging from 0 to N (equivalent to the total number of training samples) arranged in a randomized sequence
     idxTrain = idx[0:nTrain]
     idxTest = idx[nTrain:]
     
@@ -144,7 +144,7 @@ def plot_histograms(D, L, normalized):
                      edgecolor='black')
         
         plt.legend()
-        plt.tight_layout() # TBR: Use with non-default font size to keep axis label inside the figure
+        plt.tight_layout() 
         if normalized:
             plt.savefig('./images/DatasetAnalysis/hist/histogram_after_zscore_%d.png' % dIdx)
         else:
@@ -182,7 +182,7 @@ def plot_scatters(D, L, normalized):
             plt.scatter(D0[dIdx1, :], D0[dIdx2, :], label = 'Male' , color= 'blue', alpha=0.6)
             plt.scatter(D1[dIdx1, :], D1[dIdx2, :], label = 'Female', color= 'pink', alpha=0.6)        
             plt.legend()
-            plt.tight_layout() # Use with non-default font size to keep axis label inside the figure
+            plt.tight_layout() 
             plt.savefig('./images/DatasetAnalysis/scatter/scatter_%d_%d.png' % (dIdx1, dIdx2))
             plt.show()
         
@@ -238,7 +238,7 @@ def vrow(col):
 def vcol(row):
     return row.reshape((row.size,1))
 
-def createCenteredSWc(DC):     #this for already centered data 
+def createCenteredSWc(DC):     
     C = 0
     for i in range(DC.shape[1]):
         C = C + numpy.dot(DC[:,i:i+1],(DC[:,i:i+1]).T)
