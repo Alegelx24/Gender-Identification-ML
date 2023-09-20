@@ -82,8 +82,8 @@ def validate_score_trasformation(DTR,LTR, DEV=None, LEV=None, evaluation=False):
      
      
     for pi in [0.1, 0.5, 0.9]:
-        # _ , scores1, labels1 = validate.kfold(DTR, LTR, 5, 1, gmm.compute_score, Options) #pi(set to random value 1) actually not used to compute scores
-        _ , scores1, labels1 = validate.kfold(DTR, LTR, 5, 1, log_reg.compute_score, Options) #pi(set to random value 1) actually not used to compute scores
+        # _ , scores1, labels1 = validate.kfold(DTR, LTR, 5, 1, gmm.compute_score, Options)
+        _ , scores1, labels1 = validate.kfold(DTR, LTR, 5, 1, log_reg.compute_score, Options)
         scores_TR1, LTR1, scores_TE1, LTE1 = split_scores(scores1, labels1) #split and shuffle scores
         calibrated_scores1 = compute_score_trasformation(scores_TR1, LTR1, scores_TE1, pi)
         if evaluation:
@@ -113,7 +113,7 @@ def validate_score_trasformation(DTR,LTR, DEV=None, LEV=None, evaluation=False):
     
 
 def min_vs_act_after_calibration(DTR,LTR, DEV=None, LEV=None, evaluation=False):
-    print('\n\n########## Bayes Error Plot after calibration START#################')
+    print('-------------------- Bayes Error Plot after calibration started--------------------')
     
     pi_array = numpy.linspace(-4, 4, 100)
     
@@ -148,9 +148,9 @@ def min_vs_act_after_calibration(DTR,LTR, DEV=None, LEV=None, evaluation=False):
     plt.xlabel("application")
     plt.ylabel("cost")
     plt.tight_layout() 
-    plt.savefig("./images/ScoreCalibration/actVSmin_after_calibration_EVAL.png")
+    plt.savefig("./images/ScoreCalibration/actVSmin_after_calibration_evaluation.png")
     plt.show()
-    print('########## Bayes Error Plot after calibration END #################')
+    print('-------------- Bayes Error Plot after calibration ened -------------------')
 
 def split_scores(D,L, seed=0):
     nTrain = int(D.shape[0]*8.0/10.0)

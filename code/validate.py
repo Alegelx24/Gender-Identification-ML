@@ -57,7 +57,7 @@ def ROC(scores, Labels):
     FPR = numpy.zeros(thresholds.size)
     TPR = numpy.zeros(thresholds.size)
     for idx,t in enumerate(thresholds):
-        #For each value of t we compute a new confusion matrix from which i extract TPR and FPR
+        #For each value of t compute a new confusion matrix from which i extract TPR and FPR
         Pred= numpy.int32(scores>t)
         Conf = numpy.zeros((2,2))
         for i in range(2):
