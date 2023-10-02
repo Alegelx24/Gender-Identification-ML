@@ -1,2 +1,2 @@
 # Gender-Identification-ML
-Code developed with the goal of training machine learning models useful to recognize whether a speaker embedding image is from a male or from a female.
+Code developed in order to train machine learning models useful to recognize whether a speaker embedding image is from a male or from a female.
